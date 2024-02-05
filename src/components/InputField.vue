@@ -34,6 +34,7 @@
     <div>
   
       <input
+        class="w-44"
         :class="props.fieldId"
         ref="fileInput"
         type="file"
@@ -50,12 +51,16 @@
   
   <style scoped>
   .imagePreviewWrapper {
-      width: 250px;
-      height: 250px;
+      width: 11rem;
+      height: 11rem;
       display: block;
       cursor: pointer;
       margin: 0 auto 30px;
       background-size: cover;
       background-position: center center;
   }
+
+  input[type='file'] {
+    color: transparent;
+    }
   </style>

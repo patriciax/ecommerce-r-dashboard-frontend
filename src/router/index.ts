@@ -31,7 +31,7 @@ const router = createRouter({
 router.beforeEach( async(to, from) => {
 
   const authStore = useAuthStore()
-  if(!authStore.user){
+  if(!authStore.user && localStorage.getItem(import.meta.env.VITE_API_URL)){
     await authStore.getUserInfo()
   }
   
