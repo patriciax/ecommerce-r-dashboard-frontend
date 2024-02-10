@@ -2,16 +2,11 @@
 
     import Spinner from '@/assets/icons/Spinner.vue'
     import type { ButtonHTMLAttributes, PropType } from 'vue';
-
-    const emit = defineEmits(['click'])
+    
     const props = defineProps({
         buttonType: {
             type: String as PropType<ButtonHTMLAttributes['type']>,
             default: 'button'
-        },
-        title: {
-            type: String,
-            required: true
         },
         color: {
             type: String,
@@ -32,7 +27,6 @@
  <template>
     <button
         :type="props.buttonType"
-        @click="emit('click')"
         :className="`px-6 py-4 rounded-md text-white ${props.color} ${props.size} text-center`"
     >
         <div class="text-center flex justify-center">
@@ -40,7 +34,7 @@
                 <Spinner />
             </template>
             <template v-else>
-                {{ props.title }}
+                <slot/>
             </template>
         </div>
     </button>

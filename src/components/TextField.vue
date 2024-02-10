@@ -11,8 +11,7 @@
             required: true
         },
         "placeholder": {
-            type: String,
-            required: true
+            type: String
         },
         "error": {
           type: String,

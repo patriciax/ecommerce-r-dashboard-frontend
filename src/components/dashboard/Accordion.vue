@@ -13,7 +13,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <div class="rounded-md bg-gray-600 flex text-white font-bold p-2 justify-between cursor-pointer" @click="showAccordion = !showAccordion">
+    <div class="rounded-md bg-gray-600 flex text-white font-bold p-2 justify-between cursor-pointer mt-4" @click="showAccordion = !showAccordion">
       <span class="ml-2">{{ props.title }}</span>
       <ChevronIcon :class="showAccordion ? 'rotate-180' : ''"/>
     </div>

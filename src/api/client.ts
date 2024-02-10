@@ -42,9 +42,9 @@ export const axiosGet = async(url:string) => {
 
 export const axiosPatch = async(url:string, data:object) => {
 
-    const response = await axios.patch(`${import.meta.env.VITE_API_URL}${url}`, {
+    const response = await axios.patch(`${import.meta.env.VITE_API_URL}${url}`, data, {
         headers: setHeaders()
-    }, data)
+    })
     console.log(response)
 
 }

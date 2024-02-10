@@ -64,7 +64,6 @@
         try{
 
             var images64:any = []
-            const formData = new FormData();
             let imagefile:any = document.querySelector('.main');
             var mainImage64:any = null
 
