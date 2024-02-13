@@ -18,6 +18,7 @@
     "@vuelidate/core": "^2.0.3",
     "@vuelidate/validators": "^2.0.4",
     "@vueup/vue-quill": "^1.2.0",
+    "@heroicons/vue": "^2.0.18",
     "apexcharts": "^3.45.2",
     "aws-sdk": "^2.1550.0",
     "axios": "^1.6.7",

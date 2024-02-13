@@ -12,6 +12,12 @@ export default {
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
         hero: "url('@/assets/images/login-bg.jpg')",
       },
+      colors: {
+        primary: '#FCB404',
+        'background-layout': '#F0F1F7',
+        secondary:'#a3aed1',
+        'blue-dark':'#111C43'
+      },
     },
   },
   plugins: [],
