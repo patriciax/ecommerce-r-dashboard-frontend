@@ -5,7 +5,7 @@
     import DashboardLayout from '@/views/DashboardLayout.vue';
     import { reactive, ref, nextTick, computed, onMounted } from 'vue';
     import InputField from '@/components/InputField.vue';
-    import { updateSize, lastestSizes, getSize } from '@/api/repositories/size.repository';
+    import { updateColor, lastestColors, getColors } from '@/api/repositories/color.repository';
     import { helpers, integer, numeric, required } from '@vuelidate/validators';
     import useVuelidate from '@vuelidate/core';
     import {showNotification} from '@/composables/useNotification';
@@ -13,24 +13,30 @@
     import router from '@/router';
 
     const route = useRoute()
-    const lastestSizesList:any = ref([])
+    const lastestColorsList:any = ref([])
 
     const nameError = computed(() => {
-        return v$?.value.$errors?.find(item => item.$property === 'sizeName')?.$message || ''
+        return v$?.value.$errors?.find(item => item.$property === 'colorName')?.$message || ''
+    })
+
+    const hexError = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'hex')?.$message || ''
     })
 
     const loading = ref(false)
     const state = reactive({
-        sizeName: ''
+        colorName: '',
+        hex:''
     });
 
     const rules = {
-        sizeName: { required:helpers.withMessage('Este campo no puede estar vacío', required)}
+        colorName: { required:helpers.withMessage('Este campo no puede estar vacío', required)},
+        hex: { required:helpers.withMessage('Este campo no puede estar vacío', required)}
     }
 
     const v$ = useVuelidate(rules, state)
 
-    const submitSize = async () =>{
+    const submitColor = async () =>{
 
         const isFormCorrect = await v$.value.$validate();
         if (!isFormCorrect) return
@@ -39,15 +45,20 @@
         try{
             
             const data = {
-                "title": state.sizeName,
+                "title": state.colorName,
+                "hex": state.hex
+
             }
 
-            await updateSize(route.params.id.toString(), data)
-            clearForm()
-            await getSizes()
-            loading.value = false
+            const result = await updateColor(route.params.id.toString(), data)
 
-            showNotification('Talla actualizada exitosamente', 'success')
+            if(result.status == 'success'){
+                showNotification('Color actualizado exitosamente', 'success')
+            }
+
+            clearForm()
+            await lastColors()
+            loading.value = false
 
             await router.push({name: 'list-size'})
 
@@ -61,21 +72,22 @@
 
     const clearForm = () => {
 
-        state.sizeName = ''
-
+        state.colorName = ''
+        state.hex = ''
         v$?.value.$reset()
 
     }
 
-    const getSizes = async () => {
-        const result = await lastestSizes()
-        lastestSizesList.value = result.data?.sizes
+    const lastColors = async () => {
+        const result = await lastestColors()
+        lastestColorsList.value = result.data?.colors
     }
     onMounted( async () => {
-        const sizeId = route.params.id.toString()
-        const result = await getSize(sizeId)
-        state.sizeName = result.data?.name
-        getSizes()
+        const colorId = route.params.id.toString()
+        const result = await getColors(colorId)
+        state.colorName = result.data?.name
+        state.hex = result.data?.hex
+        lastColors()
     })
 
 </script>
@@ -87,17 +99,20 @@
         </div>
         <div class="flex gap-4">
             <div class="rounded-md bg-white shadow-lg p-4 w-4/5">
-                <form class="w-full" enctype="multipart/form-data" @submit.prevent="submitSize">
-                    <TextField label="Titulo de la categoría" type="text" placeholder="Ingrese el nombre de la talla" :error="`${nameError}`" v-model="state.sizeName"/>
+                <form class="w-full" enctype="multipart/form-data" @submit.prevent="submitColor">
+                    <TextField label="Titulo del color" type="text" placeholder="Ingrese el nombre del color" :error="`${nameError}`" v-model="state.colorName"/>
+                    <TextField label="Color" type="color" :error="`${hexError}`" v-model="state.hex"/>
 
                     <Button buttonType="submit" title="Actualizar talla" color="bg-blue-500" :loading="loading"/>
                 </form>
             </div>
             <div class="rounded-md bg-white shadow-lg w-1/5 p-4">
-                <div class="flex items-center justify-start" v-for="size in lastestSizesList" :key="size._id">
-
+                <div class="flex items-center justify-start" v-for="color in lastestColorsList" :key="color._id">
+                    <div class="pl-5 mr-2">
+                        <div class="w-10 h-10 rounded-full" :style="{backgroundColor: color.hex}"></div>
+                    </div>
                     <div class="pl-5">
-                        <p>{{ size.name }}</p>
+                        <p>{{ color.name }}</p>
                     </div>
                 </div>
             </div>

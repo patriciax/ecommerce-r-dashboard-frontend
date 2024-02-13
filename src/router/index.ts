@@ -12,6 +12,11 @@ import EditSizeVue from '@/views/dashboard/sizes/EditSize.vue'
 import CreateColorVue from '@/views/dashboard/colors/CreateColor.vue'
 import ListColorVue from '@/views/dashboard/colors/ListColor.vue'
 import EditColorVue from '@/views/dashboard/colors/EditColor.vue'
+import CreateEmployeeVue from '@/views/dashboard/employees/CreateEmployee.vue'
+import ListEmployeeVue from '@/views/dashboard/employees/ListEmployee.vue'
+import EditEmployeeVue from '@/views/dashboard/employees/EditEmployee.vue'
+import ListProductVue from '@/views/dashboard/products/ListProduct.vue'
+import EditProductVue from '@/views/dashboard/products/EditProduct.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,10 +33,26 @@ const router = createRouter({
       component: DashboardView,
       meta: { requiresAuth: true },
     },
+
+    
+    
+    
     {
       path: '/dashboard/product/create',
       name: 'create-product',
       component: CreateProductVue,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/dashboard/product/list',
+      name: 'list-product',
+      component: ListProductVue,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/dashboard/product/:id',
+      name: 'edit-product',
+      component: EditProductVue,
       meta: { requiresAuth: true },
     },
 
@@ -97,6 +118,27 @@ const router = createRouter({
       path: '/dashboard/color/:id',
       name: 'edit-color',
       component: EditColorVue,
+      meta: { requiresAuth: true },
+    },
+
+
+
+    {
+      path: '/dashboard/employee/create',
+      name: 'create-employee',
+      component: CreateEmployeeVue,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/dashboard/employee/list',
+      name: 'list-employee',
+      component: ListEmployeeVue,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/dashboard/employee/:id',
+      name: 'edit-employee',
+      component: EditEmployeeVue,
       meta: { requiresAuth: true },
     }
   ]

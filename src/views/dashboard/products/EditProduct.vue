@@ -5,7 +5,7 @@
     import DashboardLayout from '@/views/DashboardLayout.vue';
     import { reactive, ref, nextTick, computed, onMounted } from 'vue';
     import InputField from '@/components/InputField.vue';
-    import { createProduct } from '@/api/repositories/product.repository';
+    import { createProduct, getProduct } from '@/api/repositories/product.repository';
     import { helpers, integer, numeric, required } from '@vuelidate/validators';
     import useVuelidate from '@vuelidate/core';
     import {showNotification} from '@/composables/useNotification';
@@ -15,7 +15,9 @@
     import {allCategories} from '@/api/repositories/product.repository';
     import SelectField from '@/components/SelectField.vue';
     import MultipleSelectField from '@/components/MultipleSelectField.vue';
+    import {useRoute} from 'vue-router';
 
+    const route = useRoute()
     const lastestProductsList:any = ref([])
 
     const productError = computed(() => {
@@ -39,6 +41,8 @@
     const sizes = ref([])
     const colors = ref([])
     const categories = ref([])
+    const defaultColors = ref([])
+    const defaultSizes = ref([])
     const state = reactive({
         colors:[],
         sizes:[],
@@ -205,11 +209,29 @@
         })
     }
 
+    const loadProduct = async (productId:string) => {
+        const result = await getProduct(productId)
+        state.productName = result.data?.name
+        state.description = result.data?.description
+        state.price = result.data?.price
+        state.stock = result.data?.stock
+        state.colors = result.data?.colors
+        state.sizes = result.data?.sizes
+        state.category = result.data?.category
+
+        defaultColors.value = result.data?.colors
+        defaultSizes.value = result.data?.sizes
+    }
+
     onMounted( () => { 
+
+        const productId = route.params.id.toString()
+
         getProducts()
         getAllSizes()
         getAllColors()
         getAllCategories()
+        loadProduct(productId)
     })
 
 </script>
@@ -238,9 +260,11 @@
                     <div class="flex w-full gap-4">
                         <MultipleSelectField @changeValue="changeColors" label="Colores" placeholder="Seleccione uno o varios colors" :options="colors"
                         v-model="state.colors"
+                        :defaultValues="defaultColors"
                         />
                         <MultipleSelectField @changeValue="changeSizes" label="Tallas" placeholder="Seleccione uno o varias tallas" :options="sizes"
                         v-model="state.sizes"
+                        :defaultValues="defaultSizes"
                         />
                     </div>
 
@@ -257,7 +281,6 @@
                                 <InputField class="w-full" ref="main" fieldId="secondary"/>
                             </div>
                         </div>
-
 
                     </div>
 

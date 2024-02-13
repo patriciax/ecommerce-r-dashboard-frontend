@@ -80,14 +80,16 @@ import router from '@/router';
                 "title": state.categoryName,
             }
 
-            await updateCategory(route.params.id.toString(), data)
-            clearForm()
+            const result = await updateCategory(route.params.id.toString(), data)
+
             await getCategories()
             loading.value = false
 
-            showNotification('Categoría actualizada exitosamente', 'success')
-
-            await router.push({name: 'list-category'})
+            if(result.status == 'success'){
+                clearForm()
+                showNotification('Categoría actualizada exitosamente', 'success')
+                await router.push({name: 'list-category'})
+            }
 
         }catch(error){
             console.log(error)
@@ -100,12 +102,6 @@ import router from '@/router';
     const clearForm = () => {
 
         state.categoryName = ''
-
-        showImageInputs.value = false
-        nextTick(() => {
-            showImageInputs.value = true
-        })
-
         v$?.value.$reset()
 
     }

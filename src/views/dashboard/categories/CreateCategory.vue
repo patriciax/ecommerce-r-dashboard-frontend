@@ -72,16 +72,19 @@
                 "title": state.categoryName,
             }
 
-            await createCategory(data)
+            const result = await createCategory(data)
+
+            if(result.status == 'success'){
+                showNotification('Categoría creada exitosamente', 'success')
+            }
+
             clearForm()
             await getCategories()
             loading.value = false
 
-            showNotification('Categoría creada exitosamente', 'success')
-
         }catch(error){
             console.log(error)
-            showNotification('Error al crear el producto', 'error')
+            showNotification('Error al crear la categoría', 'error')
 
         }
 

@@ -1,32 +1,32 @@
 <script setup lang="ts">
     import DashboardLayout from '@/views/DashboardLayout.vue';
-import { categoryList } from '@/api/repositories/category.repository';
-import { categoryDelete } from '@/api/repositories/category.repository';
-import { onMounted, ref } from 'vue';
-import ButtonIcon from '@/components/ButtonIcon.vue';
-import TrashIcon from '@/components/icons/TrashIcon.vue';
-import EditIcon from '@/components/icons/EditIcon.vue';
-import {showNotification} from '@/composables/useNotification';
-import Spinner from '@/assets/icons/Spinner.vue';
-import { useRouter } from 'vue-router'
-import { sizeDelete, sizeList } from '@/api/repositories/size.repository';
+    import { colorDelete, colorList } from '@/api/repositories/color.repository';
+    import { onMounted, ref } from 'vue';
+    import ButtonIcon from '@/components/ButtonIcon.vue';
+    import TrashIcon from '@/components/icons/TrashIcon.vue';
+    import EditIcon from '@/components/icons/EditIcon.vue';
+    import {showNotification} from '@/composables/useNotification';
+    import Spinner from '@/assets/icons/Spinner.vue';
+    import { useRouter } from 'vue-router'
 
-const router = useRouter()
-    const sizes:any = ref([])
+    const router = useRouter()
+    const colors:any = ref([])
     const limit = ref(10)
     const page = ref(1)
     const loadingDelete = ref(false)
-    const loadingSizes = ref(false)
+    const loadingColors = ref(false)
 
-    const deleteSize = async(id:string) => {
+    const deleteColor = async(id:string) => {
         try{
 
             loadingDelete.value = true
 
-            await sizeDelete(id)
-            showNotification('Talla eliminada', 'success')
+            const result = await colorDelete(id)
+            if(result.status == 'success'){
+                showNotification('Color eliminado', 'success')
+            }
             
-            await getSizes()
+            await getColors()
             loadingDelete.value = false
 
         }catch(error){
@@ -35,19 +35,19 @@ const router = useRouter()
         }
     }
 
-    const goToEditSize = async(id:string) => {
-        await router.push({name: 'edit-size', params: {id}})
+    const goToEditColor = async(id:string) => {
+        await router.push({name: 'edit-color', params: {id}})
     }
 
-    const getSizes = async () => {
-        loadingSizes.value = true
-        const response = await sizeList()
-        sizes.value = response.data?.sizes
-        loadingSizes.value = false
+    const getColors = async () => {
+        loadingColors.value = true
+        const response = await colorList()
+        colors.value = response.data?.colors
+        loadingColors.value = false
     }
 
     onMounted(async () => {
-        getSizes()
+        getColors()
     })
 
 </script>
@@ -63,7 +63,7 @@ const router = useRouter()
                             <th class="border border-slate-500">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody v-if="loadingSizes">
+                    <tbody v-if="loadingColors">
                         <tr>
                             <td colspan="3">
                                 <div class="flex justify-center items-center">
@@ -73,20 +73,20 @@ const router = useRouter()
                         </tr>
                     </tbody>
                     <tbody v-else>
-                            <tr v-if="!sizes.length">
+                            <tr v-if="!colors.length">
                                 <td colspan="3">
                                     <div class="flex justify-center items-center">
-                                        <p>No hay tallas a mostrar</p>
+                                        <p>No hay colores a mostrar</p>
                                     </div>
                                 </td>
                             </tr>
-                            <tr v-for="size in sizes" :key="size?._id">
-                                <td class="border border-slate-500 px-4">{{ size.name }}</td>
+                            <tr v-for="color in colors" :key="color?._id">
+                                <td class="border border-slate-500 px-4">{{ color.name }}</td>
                                 <td class="border border-slate-500 px-4">
-                                    <ButtonIcon color="bg-blue-500" size="p-2" @click="goToEditSize(size?._id)">
+                                    <ButtonIcon color="bg-blue-500" size="p-2" @click="goToEditColor(color?._id)">
                                         <EditIcon/>
                                     </ButtonIcon>
-                                    <ButtonIcon color="bg-red-500" size="p-2" :loading="loadingDelete" @click="deleteSize(size?._id)">
+                                    <ButtonIcon color="bg-red-500" size="p-2" :loading="loadingDelete" @click="deleteColor(color?._id)">
                                         <TrashIcon />
                                     </ButtonIcon>
                                 </td>
