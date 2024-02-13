@@ -9,47 +9,47 @@ import EditIcon from '@/components/icons/EditIcon.vue';
 import {showNotification} from '@/composables/useNotification';
 import Spinner from '@/assets/icons/Spinner.vue';
 import { useRouter } from 'vue-router'
-import { sizeDelete, sizeList } from '@/api/repositories/size.repository';
+import { employeeList, employeeDelete } from '@/api/repositories/user.repository';
 
 const router = useRouter()
-    const sizes:any = ref([])
+    const employees:any = ref([])
     const limit = ref(10)
     const page = ref(1)
     const loadingDelete = ref(false)
-    const loadingSizes = ref(false)
+    const loadingEmployees = ref(false)
 
-    const deleteSize = async(id:string) => {
+    const deleteEmployee = async(id:string) => {
         try{
 
             loadingDelete.value = true
 
-            const result = await sizeDelete(id)
+            const result = await employeeDelete(id)
             if(result.status == 'success'){
-                showNotification('Talla eliminada', 'success')
+                showNotification('Empleado eliminado', 'success')
             }
             
-            await getSizes()
+            await getAllEmployees()
             loadingDelete.value = false
 
         }catch(error){
             loadingDelete.value = false
-            showNotification('Error al eliminar la talla', 'error')
+            showNotification('Error al eliminar la categoría', 'error')
         }
     }
 
-    const goToEditSize = async(id:string) => {
-        await router.push({name: 'edit-size', params: {id}})
+    const goToEditEmployee = async(id:string) => {
+        await router.push({name: 'edit-employee', params: {id}})
     }
 
-    const getSizes = async () => {
-        loadingSizes.value = true
-        const response = await sizeList()
-        sizes.value = response.data?.sizes
-        loadingSizes.value = false
+    const getAllEmployees = async () => {
+        loadingEmployees.value = true
+        const response = await employeeList()
+        employees.value = response.data?.users
+        loadingEmployees.value = false
     }
 
     onMounted(async () => {
-        getSizes()
+        getAllEmployees()
     })
 
 </script>
@@ -65,7 +65,7 @@ const router = useRouter()
                             <th class="border border-slate-500">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody v-if="loadingSizes">
+                    <tbody v-if="loadingEmployees">
                         <tr>
                             <td colspan="3">
                                 <div class="flex justify-center items-center">
@@ -75,20 +75,20 @@ const router = useRouter()
                         </tr>
                     </tbody>
                     <tbody v-else>
-                            <tr v-if="!sizes.length">
+                            <tr v-if="!employees.length">
                                 <td colspan="3">
                                     <div class="flex justify-center items-center">
-                                        <p>No hay tallas a mostrar</p>
+                                        <p>No hay empleados a mostrar</p>
                                     </div>
                                 </td>
                             </tr>
-                            <tr v-for="size in sizes" :key="size?._id">
-                                <td class="border border-slate-500 px-4">{{ size.name }}</td>
+                            <tr v-for="employee in employees" :key="employee?._id">
+                                <td class="border border-slate-500 px-4">{{ employee.name }}</td>
                                 <td class="border border-slate-500 px-4">
-                                    <ButtonIcon color="bg-blue-500" size="p-2" @click="goToEditSize(size?._id)">
+                                    <ButtonIcon color="bg-blue-500" size="p-2" @click="goToEditEmployee(employee?._id)">
                                         <EditIcon/>
                                     </ButtonIcon>
-                                    <ButtonIcon color="bg-red-500" size="p-2" :loading="loadingDelete" @click="deleteSize(size?._id)">
+                                    <ButtonIcon color="bg-red-500" size="p-2" :loading="loadingDelete" @click="deleteEmployee(employee?._id)">
                                         <TrashIcon />
                                     </ButtonIcon>
                                 </td>

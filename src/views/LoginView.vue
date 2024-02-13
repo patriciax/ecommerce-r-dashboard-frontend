@@ -33,6 +33,7 @@ const signIn = async() => {
 
   loading.value = true
 
+  const allowedRoles = ['ADMIN', 'EMPLOYEE']
   const response = await login({email: state.email, password: state.password})
 
   if(response.status == 'success'){
@@ -40,14 +41,14 @@ const signIn = async() => {
     await authStore.getUserInfo()
     loading.value = false
     
-    if(authStore.user?.role?.name != 'ADMIN'){
+    if(!allowedRoles.includes(authStore.user?.role?.name)){
       authStore.user = null
       localStorage.removeItem(import.meta.env.VITE_BEARER_TOKEN_KEY)
       return showNotification("Solo administradores pueden ingresar", "error")
     }
 
-    if(route?.redirect){
-      router.push(route.redirect)
+    if(route.query?.redirect){
+      router.push(route.query?.redirect)
       return
     }
 

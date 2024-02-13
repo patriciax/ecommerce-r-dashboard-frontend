@@ -10,6 +10,11 @@
     import useVuelidate from '@vuelidate/core';
     import {showNotification} from '@/composables/useNotification';
     import {lastestProducts} from '@/api/repositories/product.repository';
+    import {allSizes} from '@/api/repositories/product.repository';
+    import {allColors} from '@/api/repositories/product.repository';
+    import {allCategories} from '@/api/repositories/product.repository';
+    import SelectField from '@/components/SelectField.vue';
+    import MultipleSelectField from '@/components/MultipleSelectField.vue';
 
     const lastestProductsList:any = ref([])
 
@@ -31,18 +36,35 @@
 
     const showImageInputs = ref(true)
     const loading = ref(false)
+    const sizes = ref([])
+    const colors = ref([])
+    const categories = ref([])
     const state = reactive({
+        colors:[],
+        sizes:[],
+        category: '',
         productName: '',
         description: '',
         price: null,
         stock: null
     });
 
+    const changeColors = (value:any) => {
+        state.colors = value
+    }
+
+    const changeSizes = (value:any) => {
+        state.sizes = value
+    }
+
     const rules = {
         productName: { required:helpers.withMessage('Este campo no puede estar vacío', required)},
         description: { required:helpers.withMessage('Este campo no puede estar vacío', required) },
         price: { required:helpers.withMessage('Este campo no puede estar vacío', required), numeric:helpers.withMessage('Solo se permiten números', numeric) },
-        stock: { required:helpers.withMessage('Este campo no puede estar vacío', required), integer:helpers.withMessage('Solo se permiten números', integer) }
+        stock: { required:helpers.withMessage('Este campo no puede estar vacío', required), integer:helpers.withMessage('Solo se permiten números', integer) },
+        colors: { required:helpers.withMessage('Este campo no puede estar vacío', required) },
+        category: { required:helpers.withMessage('Este campo no puede estar vacío', required) },
+        sizes: { required:helpers.withMessage('Este campo no puede estar vacío', required) }
     }
 
     const v$ = useVuelidate(rules, state)
@@ -103,6 +125,9 @@
             }
             
             const data = {
+                "colors": state.colors,
+                "sizes": state.sizes,
+                "category": state.category,
                 "mainImage": mainImage64,
                 "images": images64,
                 "title": state.productName,
@@ -132,6 +157,9 @@
         state.description = ''
         state.price = null
         state.stock = null
+        state.colors = []
+        state.sizes = []
+        state.category = ''
 
         showImageInputs.value = false
         nextTick(() => {
@@ -147,8 +175,41 @@
         lastestProductsList.value = result.data?.products
     }
 
+    const getAllSizes = async () => {
+        const response = await allSizes()
+        sizes.value = response.data?.sizes.map((size:any) => {
+            return {
+                id: size._id,
+                name: size.name
+            }
+        })
+    }
+
+    const getAllColors = async () => {
+        const response = await allColors()
+        colors.value = response.data?.colors.map((color:any) => {
+            return {
+                id: color._id,
+                name: color.name
+            }
+        })
+    }
+
+    const getAllCategories = async () => {
+        const response = await allCategories()
+        categories.value = response.data?.categories.map((category:any) => {
+            return {
+                id: category._id,
+                name: category.name
+            }
+        })
+    }
+
     onMounted( () => { 
         getProducts()
+        getAllSizes()
+        getAllColors()
+        getAllCategories()
     })
 
 </script>
@@ -167,6 +228,20 @@
                         <TextField class="w-full" :onlyNumber="true" label="Precio del producto" type="text" placeholder="Ingrese el precio del producto" :error="`${priceError}`" v-model="state.price"/>
 
                         <TextField class="w-full" :onlyNumber="true" label="Stock del producto" type="text" placeholder="Ingrese el stock del producto" :error="`${stockError}`" v-model="state.stock"/>
+                    </div>
+
+                    <div class="flex w-full gap-4">
+                        <SelectField label="Categorías" placeholder="Seleccione una categoría" :options="categories"
+                        v-model="state.category"
+                        />
+                    </div>
+                    <div class="flex w-full gap-4">
+                        <MultipleSelectField @changeValue="changeColors" label="Colores" placeholder="Seleccione uno o varios colors" :options="colors"
+                        v-model="state.colors"
+                        />
+                        <MultipleSelectField @changeValue="changeSizes" label="Tallas" placeholder="Seleccione uno o varias tallas" :options="sizes"
+                        v-model="state.sizes"
+                        />
                     </div>
 
                     <div class="flex w-full gap-4" v-if="showImageInputs">

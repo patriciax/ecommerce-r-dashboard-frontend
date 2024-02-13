@@ -40,12 +40,15 @@
                 "hexColor": state.hexColor,
             }
 
-            await createColor(data)
+            const result = await createColor(data)
+
+            if(result.status == 'success'){
+                showNotification('Color creado exitosamente', 'success')
+            }
+
             clearForm()
             await getColors()
             loading.value = false
-
-            showNotification('Color creado exitosamente', 'success')
 
         }catch(error){
             console.log(error)

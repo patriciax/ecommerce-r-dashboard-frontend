@@ -22,8 +22,10 @@ const router = useRouter()
 
             loadingDelete.value = true
 
-            await categoryDelete(id)
-            showNotification('Categoría eliminada', 'success')
+            const result = await categoryDelete(id)
+            if(result.status == 'success'){
+                showNotification('Categoría eliminada', 'success')
+            }
             
             await getCategories()
             loadingDelete.value = false
