@@ -5,6 +5,7 @@ import LogOutIcon from '../icons/LogOutIcon.vue';
 import { useAuthStore } from '@/stores/authStore';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
+import { UserCircleIcon} from '@heroicons/vue/24/outline'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -30,12 +31,12 @@ const logout = () => {
 
 <template>
     <div class="flex items-center justify-start cursor-pointer" @click="showMenu = !showMenu">
-        <UserIcon />
-        <div>
-            <p class="text-md font-bold">
+       <UserCircleIcon class="w-8 mr-2 text-blue-light"/>
+        <div class="text-blue-light">
+            <p class="text-md font-bold text-xs">
                 {{ props.name }}
             </p>
-            <p class="text-sm">
+            <p class="text-xs">
                 {{ props.role }}
             </p>
         </div>

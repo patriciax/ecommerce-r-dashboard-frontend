@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
-import DashboardView from '@/views/DashboardView.vue'
+// import DashboardView from '@/views/DashboardView.vue'
+import DashboardView from '@/views/Dashboard.vue'
+
 import { useAuthStore } from '@/stores/authStore'
 import CreateProductVue from '@/views/dashboard/products/CreateProduct.vue'
 import CreateCategoryVue from '@/views/dashboard/categories/CreateCategory.vue'
@@ -16,124 +18,128 @@ import CreateEmployeeVue from '@/views/dashboard/employees/CreateEmployee.vue'
 import ListEmployeeVue from '@/views/dashboard/employees/ListEmployee.vue'
 import EditEmployeeVue from '@/views/dashboard/employees/EditEmployee.vue'
 import ListProductVue from '@/views/dashboard/products/ListProduct.vue'
+import Home from '@/views/Home.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+   {
+    path: '/',
+    name: 'dashboard',
+    component: DashboardView,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: '/',
+        name: 'home',
+        component: Home,
+      },
+      {
+        path: '/dashboard/product/create',
+        name: 'create-product',
+        component: CreateProductVue,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/dashboard/product/list',
+        name: 'list-product',
+        component: ListProductVue,
+        meta: { requiresAuth: true },
+      },
+  
+  
+  
+  
+      {
+        path: '/dashboard/category/create',
+        name: 'create-category',
+        component: CreateCategoryVue,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/dashboard/category/list',
+        name: 'list-category',
+        component: ListCategoryVue,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/dashboard/category/:id',
+        name: 'edit-category',
+        component: EditCategoryVue,
+        meta: { requiresAuth: true },
+      },
+  
+  
+  
+      {
+        path: '/dashboard/size/create',
+        name: 'create-size',
+        component: CreateSizeVue,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/dashboard/size/list',
+        name: 'list-size',
+        component: ListSizeVue,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/dashboard/size/:id',
+        name: 'edit-size',
+        component: EditSizeVue,
+        meta: { requiresAuth: true },
+      },
+  
+  
+  
+  
+      {
+        path: '/dashboard/color/create',
+        name: 'create-color',
+        component: CreateColorVue,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/dashboard/color/list',
+        name: 'list-color',
+        component: ListColorVue,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/dashboard/color/:id',
+        name: 'edit-color',
+        component: EditColorVue,
+        meta: { requiresAuth: true },
+      },
+  
+  
+  
+      {
+        path: '/dashboard/employee/create',
+        name: 'create-employee',
+        component: CreateEmployeeVue,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/dashboard/employee/list',
+        name: 'list-employee',
+        component: ListEmployeeVue,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/dashboard/employee/:id',
+        name: 'edit-employee',
+        component: EditEmployeeVue,
+        meta: { requiresAuth: true },
+      }
+    ]
+   },
     {
       path: '/',
       name: 'login',
       component: LoginView,
       meta: { requiresAuth: false },
     },
-    {
-      path: '/dashboard',
-      name: 'dashboard',
-      component: DashboardView,
-      meta: { requiresAuth: true },
-    },
-
-    
-    
-    
-    {
-      path: '/dashboard/product/create',
-      name: 'create-product',
-      component: CreateProductVue,
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/dashboard/product/list',
-      name: 'list-product',
-      component: ListProductVue,
-      meta: { requiresAuth: true },
-    },
-
-
-
-
-    {
-      path: '/dashboard/category/create',
-      name: 'create-category',
-      component: CreateCategoryVue,
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/dashboard/category/list',
-      name: 'list-category',
-      component: ListCategoryVue,
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/dashboard/category/:id',
-      name: 'edit-category',
-      component: EditCategoryVue,
-      meta: { requiresAuth: true },
-    },
-
-
-
-    {
-      path: '/dashboard/size/create',
-      name: 'create-size',
-      component: CreateSizeVue,
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/dashboard/size/list',
-      name: 'list-size',
-      component: ListSizeVue,
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/dashboard/size/:id',
-      name: 'edit-size',
-      component: EditSizeVue,
-      meta: { requiresAuth: true },
-    },
-
-
-
-
-    {
-      path: '/dashboard/color/create',
-      name: 'create-color',
-      component: CreateColorVue,
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/dashboard/color/list',
-      name: 'list-color',
-      component: ListColorVue,
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/dashboard/color/:id',
-      name: 'edit-color',
-      component: EditColorVue,
-      meta: { requiresAuth: true },
-    },
-
-
-
-    {
-      path: '/dashboard/employee/create',
-      name: 'create-employee',
-      component: CreateEmployeeVue,
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/dashboard/employee/list',
-      name: 'list-employee',
-      component: ListEmployeeVue,
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/dashboard/employee/:id',
-      name: 'edit-employee',
-      component: EditEmployeeVue,
-      meta: { requiresAuth: true },
-    }
   ]
 })
 

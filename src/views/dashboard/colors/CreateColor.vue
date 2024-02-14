@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import TextField from '@/components/TextField.vue';
     import Button from '@/components/Button.vue';
-    import DashboardLayout from '@/views/DashboardLayout.vue';
+    
     import { reactive, ref, computed, onMounted } from 'vue';
     import { createColor, lastestColors } from '@/api/repositories/color.repository';
     import { helpers, integer, numeric, required } from '@vuelidate/validators';
@@ -78,7 +78,7 @@
 </script>
 
 <template>
-    <DashboardLayout>
+   <section>
         <div>
             <h1>Create product</h1>
         </div>
@@ -100,5 +100,5 @@
                 </div>
             </div>
         </div>
-    </DashboardLayout>
+    </section>
 </template>

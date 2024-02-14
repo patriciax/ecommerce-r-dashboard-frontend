@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import LineChartCard from '@/components/dashboard/LineChartCard.vue';
 import ListChartCard from '@/components/dashboard/ListChartCard.vue';
-import DashboardLayout from '@/views/DashboardLayout.vue';
 
 </script>
 
 <template>
-    <DashboardLayout>
         <div class="flex gap-4 w-full">
             <div class="w-1/3">
                 <ListChartCard/>
@@ -27,5 +25,4 @@ import DashboardLayout from '@/views/DashboardLayout.vue';
                 <LineChartCard />
             </div>
         </div>
-    </DashboardLayout>
 </template>

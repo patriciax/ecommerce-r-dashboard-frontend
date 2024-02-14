@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import DashboardLayout from '@/views/DashboardLayout.vue';
+    
 import { categoryList } from '@/api/repositories/category.repository';
 import { categoryDelete } from '@/api/repositories/category.repository';
 import { onMounted, ref } from 'vue';
@@ -54,7 +54,7 @@ const router = useRouter()
 </script>
 
 <template>
-    <DashboardLayout>
+   <section>
         <div class="rounded-md bg-white shadow-lg w-full p-4">
             <div class="flex items-center justify-start">
                 <table class="table-auto border-collapse border border-slate-500 w-full">
@@ -99,5 +99,5 @@ const router = useRouter()
                 </table>
             </div>
         </div>
-    </DashboardLayout>
+    </section>
 </template>

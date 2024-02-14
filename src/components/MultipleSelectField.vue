@@ -35,7 +35,7 @@ import { ref, type Ref } from 'vue';
 <template>
     <div class="flex flex-col w-full">
         <label>{{ props.label }}</label>
-        <select class="w-full rounded-md p-3" @change="addOption" v-model="selectedOption">
+        <select class="w-full rounded-md p-3 border border-gray-20 bg-transparent" @change="addOption" v-model="selectedOption">
             <option value="null" selected disabled>{{ props.placeholder }}</option>
             <option :value="option.id" v-for="option in props.options">{{ option.name }}</option>
         </select>

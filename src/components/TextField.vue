@@ -35,12 +35,12 @@
 </script>
 
 <template>
-    <div class="py-3">
-      <p>{{ props.label }}</p>
+    <div class="py-2">
+      <p class="text-sm font-medium mb-0.5 text-default-text">{{ props.label }}</p>
       <input
         v-model="model"
         :type="props.type"
-        class="border border-gray-200 mt-2 w-full rounded-md px-3 py-2 outline-none focus:border-blue-500"
+        class="border border-gray-200  w-full rounded-md px-3 py-1.5 outline-none focus:border-blue-500 placeholder:text-xs"
         :placeholder="props.placeholder"
         @keypress="props.onlyNumber ? isNumber($event) : ''"
       />

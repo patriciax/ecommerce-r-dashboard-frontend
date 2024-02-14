@@ -16,7 +16,10 @@ export default {
         primary: '#FCB404',
         'background-layout': '#F0F1F7',
         secondary:'#a3aed1',
-        'blue-dark':'#111C43'
+        'blue-dark':'#111C43',
+        'blue-hover':'#1D284D',
+        'blue-light':'#536485',
+        'default-text':'#333335'
       },
     },
   },

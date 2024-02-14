@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import 'nav','custom';
+
+body {
+  font-family: 'Montserrat', sans-serif;
+}

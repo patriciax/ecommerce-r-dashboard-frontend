@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import TextField from '@/components/TextField.vue';
     import Button from '@/components/Button.vue';
-    import DashboardLayout from '@/views/DashboardLayout.vue';
+    
     import { reactive, ref, nextTick, computed, onMounted } from 'vue';
     import InputField from '@/components/InputField.vue';
     import { createSize, lastestSizes } from '@/api/repositories/size.repository';
@@ -72,7 +72,7 @@
 </script>
 
 <template>
-    <DashboardLayout>
+   <section>
         <div>
             <h1>Create product</h1>
         </div>
@@ -92,5 +92,5 @@
                 </div>
             </div>
         </div>
-    </DashboardLayout>
+    </section>
 </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import DashboardLayout from '@/views/DashboardLayout.vue';
+    
     import { productDelete, productList } from '@/api/repositories/product.repository';
     import { onMounted, ref } from 'vue';
     import ButtonIcon from '@/components/ButtonIcon.vue';
@@ -53,7 +53,7 @@
 </script>
 
 <template>
-    <DashboardLayout>
+   <section>
         <div class="rounded-md bg-white shadow-lg w-full p-4">
             <div class="flex items-center justify-start">
                 <table class="table-auto border-collapse border border-slate-500 w-full">
@@ -99,5 +99,5 @@
                 </table>
             </div>
         </div>
-    </DashboardLayout>
+    </section>
 </template>

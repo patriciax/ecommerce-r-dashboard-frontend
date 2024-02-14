@@ -2,7 +2,7 @@
     import TextField from '@/components/TextField.vue';
     import Button from '@/components/Button.vue';
     import TextArea from '@/components/TextArea.vue';
-    import DashboardLayout from '@/views/DashboardLayout.vue';
+    
     import { reactive, ref, nextTick, computed, onMounted } from 'vue';
     import InputField from '@/components/InputField.vue';
     import { updateCategory } from '@/api/repositories/category.repository';
@@ -124,7 +124,7 @@ import router from '@/router';
 </script>
 
 <template>
-    <DashboardLayout>
+   <section>
         <div>
             <h1>Create product</h1>
         </div>
@@ -159,5 +159,5 @@ import router from '@/router';
                 </div>
             </div>
         </div>
-    </DashboardLayout>
+    </section>
 </template>
