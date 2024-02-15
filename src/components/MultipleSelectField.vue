@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, type Ref } from 'vue';
+import { onMounted, ref, watch, type Ref } from 'vue';
 
     interface Option {
         id: string
@@ -13,6 +13,7 @@ import { ref, type Ref } from 'vue';
         label: String,
         placeholder: String,
         options: Array<Option>,
+        defaultValues: Array<string>
     });
 
     const emit = defineEmits(['changeValue'])
@@ -29,6 +30,10 @@ import { ref, type Ref } from 'vue';
         selectedRows.value = selectedRows.value.filter((row:Option) => row.id !== option.id)
         emit('changeValue', selectedRows.value)
     }
+
+    watch(() => props.defaultValues, (newValue) => {
+        selectedRows.value = newValue?.map((id:string) => props.options?.find((option:Option) => option.id === id) as Option) ?? [];
+    })
 
 </script>
 

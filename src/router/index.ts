@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
-// import DashboardView from '@/views/DashboardView.vue'
 import DashboardView from '@/views/Dashboard.vue'
 
 import { useAuthStore } from '@/stores/authStore'
@@ -19,6 +18,7 @@ import ListEmployeeVue from '@/views/dashboard/employees/ListEmployee.vue'
 import EditEmployeeVue from '@/views/dashboard/employees/EditEmployee.vue'
 import ListProductVue from '@/views/dashboard/products/ListProduct.vue'
 import Home from '@/views/Home.vue'
+import EditProductVue from '@/views/dashboard/products/EditProduct.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,6 +44,12 @@ const router = createRouter({
         path: '/dashboard/product/list',
         name: 'list-product',
         component: ListProductVue,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/dashboard/product/:id',
+        name: 'edit-product',
+        component: EditProductVue,
         meta: { requiresAuth: true },
       },
   
