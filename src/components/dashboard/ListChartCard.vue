@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-    <div class="rounded-md bg-white shadow-md p-3 items-center">
+    <div class="rounded-md bg-white shadow-md p-3 items-center h-fit">
         <div>
             <p class="font-bold">Latest products sold</p>
         </div>
