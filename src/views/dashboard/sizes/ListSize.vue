@@ -1,7 +1,5 @@
 <script setup lang="ts">
     
-import { categoryList } from '@/api/repositories/category.repository';
-import { categoryDelete } from '@/api/repositories/category.repository';
 import { onMounted, ref } from 'vue';
 import ButtonIcon from '@/components/ButtonIcon.vue';
 import TrashIcon from '@/components/icons/TrashIcon.vue';
@@ -10,11 +8,13 @@ import {showNotification} from '@/composables/useNotification';
 import Spinner from '@/assets/icons/Spinner.vue';
 import { useRouter } from 'vue-router'
 import { sizeDelete, sizeList } from '@/api/repositories/size.repository';
+import Pagination from '@/components/Pagination.vue';
 
 const router = useRouter()
     const sizes:any = ref([])
     const limit = ref(10)
-    const page = ref(1)
+    const actualPage = ref(1)
+    const totalPages = ref(1)
     const loadingDelete = ref(false)
     const loadingSizes = ref(false)
 
@@ -41,9 +41,11 @@ const router = useRouter()
         await router.push({name: 'edit-size', params: {id}})
     }
 
-    const getSizes = async () => {
+    const getSizes = async (page = 1) => {
+        actualPage.value = page
         loadingSizes.value = true
-        const response = await sizeList()
+        const response = await sizeList(limit.value, page)
+        totalPages.value = response.totalPages
         sizes.value = response.data?.sizes
         loadingSizes.value = false
     }
@@ -97,6 +99,7 @@ const router = useRouter()
                     </tbody>
                 </table>
             </div>
+            <Pagination @changePageEmit="(page:number) => getSizes(page)" :totalPages="totalPages" :actualPage="actualPage" />
         </div>
     </section>
 </template>

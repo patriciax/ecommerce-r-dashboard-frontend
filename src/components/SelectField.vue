@@ -2,7 +2,11 @@
     const props = defineProps({
         label: String,
         placeholder: String,
-        options: Array<{ id: number, name: string }>,
+        options: Array<{ id: number | string, name: string }>,
+        "error": {
+          type: String,
+          default: ''
+        },
     });
 
     const model = defineModel()
@@ -15,5 +19,6 @@
             <option value="" selected disabled>{{ props.placeholder }}</option>
             <option :value="option.id" v-for="option in props.options">{{ option.name }}</option>
         </select>
+        <p class="text-red-300">{{ props.error }}</p>
     </div>
 </template>

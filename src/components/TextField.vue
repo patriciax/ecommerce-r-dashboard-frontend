@@ -2,6 +2,10 @@
 
     const model = defineModel()
     const props = defineProps({
+        "disabled":{
+          type: Boolean,
+          default: false
+        },
         "label": {
             type: String,
             required: true
@@ -38,6 +42,7 @@
     <div class="py-2">
       <p class="text-sm font-medium mb-0.5 text-default-text">{{ props.label }}</p>
       <input
+        :disabled="props.disabled"
         v-model="model"
         :type="props.type"
         class="border border-gray-200  w-full rounded-md px-3 py-1.5 outline-none focus:border-blue-500 placeholder:text-xs"

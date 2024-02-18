@@ -1,7 +1,5 @@
 <script setup lang="ts">
     
-import { categoryList } from '@/api/repositories/category.repository';
-import { categoryDelete } from '@/api/repositories/category.repository';
 import { onMounted, ref } from 'vue';
 import ButtonIcon from '@/components/ButtonIcon.vue';
 import TrashIcon from '@/components/icons/TrashIcon.vue';
@@ -10,13 +8,15 @@ import {showNotification} from '@/composables/useNotification';
 import Spinner from '@/assets/icons/Spinner.vue';
 import { useRouter } from 'vue-router'
 import { employeeList, employeeDelete } from '@/api/repositories/user.repository';
+import Pagination from '@/components/Pagination.vue';
 
 const router = useRouter()
     const employees:any = ref([])
     const limit = ref(10)
-    const page = ref(1)
+    const actualPage = ref(1)
     const loadingDelete = ref(false)
     const loadingEmployees = ref(false)
+    const totalPages = ref(1)
 
     const deleteEmployee = async(id:string) => {
         try{
@@ -28,7 +28,7 @@ const router = useRouter()
                 showNotification('Empleado eliminado', 'success')
             }
             
-            await getAllEmployees()
+            await getEmployees()
             loadingDelete.value = false
 
         }catch(error){
@@ -41,15 +41,17 @@ const router = useRouter()
         await router.push({name: 'edit-employee', params: {id}})
     }
 
-    const getAllEmployees = async () => {
+    const getEmployees = async (page = 1) => {
+        actualPage.value = page
         loadingEmployees.value = true
-        const response = await employeeList()
+        const response = await employeeList(limit.value, actualPage.value)
         employees.value = response.data?.users
         loadingEmployees.value = false
+        totalPages.value = response.totalPages
     }
 
     onMounted(async () => {
-        getAllEmployees()
+        getEmployees()
     })
 
 </script>
@@ -97,6 +99,7 @@ const router = useRouter()
                     </tbody>
                 </table>
             </div>
+            <Pagination @changePageEmit="(page:number) => getEmployees(page)" :totalPages="totalPages" :actualPage="actualPage" />
         </div>
     </section>
 </template>

@@ -2,10 +2,9 @@
     import TextField from '@/components/TextField.vue';
     import Button from '@/components/Button.vue';
     
-    import { reactive, ref, nextTick, computed, onMounted } from 'vue';
-    import InputField from '@/components/InputField.vue';
+    import { reactive, ref, computed, onMounted } from 'vue';
     import { createSize, lastestSizes } from '@/api/repositories/size.repository';
-    import { helpers, integer, numeric, required } from '@vuelidate/validators';
+    import { helpers, required } from '@vuelidate/validators';
     import useVuelidate from '@vuelidate/core';
     import {showNotification} from '@/composables/useNotification';
 
@@ -15,13 +14,19 @@
         return v$?.value.$errors?.find(item => item.$property === 'sizeName')?.$message || ''
     })
 
+    const nameEnglishError = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'sizeNameEnglish')?.$message || ''
+    })
+
     const loading = ref(false)
     const state = reactive({
-        sizeName: ''
+        sizeName: '',
+        sizeNameEnglish: ''
     });
 
     const rules = {
-        sizeName: { required:helpers.withMessage('Este campo no puede estar vacío', required)}
+        sizeName: { required:helpers.withMessage('Este campo no puede estar vacío', required)},
+        sizeNameEnglish: { required:helpers.withMessage('Este campo no puede estar vacío', required)}
     }
 
     const v$ = useVuelidate(rules, state)
@@ -36,6 +41,7 @@
             
             const data = {
                 "title": state.sizeName,
+                "titleEnglish": state.sizeNameEnglish
             }
 
             await createSize(data)
@@ -56,6 +62,7 @@
     const clearForm = () => {
 
         state.sizeName = ''
+        state.sizeNameEnglish = ''
         v$?.value.$reset()
 
     }
@@ -80,6 +87,7 @@
             <div class="rounded-md bg-white shadow-lg p-4 w-4/5">
                 <form class="w-full" enctype="multipart/form-data" @submit.prevent="submitSize">
                     <TextField label="Titulo de la talla" type="text" placeholder="Ingrese el nombre de la talla" :error="`${nameError}`" v-model="state.sizeName"/>
+                    <TextField label="Titulo de la talla en inglés" type="text" placeholder="Ingrese el nombre de la talla en inglés" :error="`${nameEnglishError}`" v-model="state.sizeNameEnglish"/>
 
                     <Button buttonType="submit" title="Crear talla" color="bg-blue-500" :loading="loading"/>
                 </form>

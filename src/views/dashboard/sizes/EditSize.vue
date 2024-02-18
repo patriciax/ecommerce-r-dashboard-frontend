@@ -19,13 +19,19 @@
         return v$?.value.$errors?.find(item => item.$property === 'sizeName')?.$message || ''
     })
 
+    const nameEnglishError = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'sizeNameEnglish')?.$message || ''
+    })
+
     const loading = ref(false)
     const state = reactive({
-        sizeName: ''
+        sizeName: '',
+        sizeNameEnglish: ''
     });
 
     const rules = {
-        sizeName: { required:helpers.withMessage('Este campo no puede estar vacío', required)}
+        sizeName: { required:helpers.withMessage('Este campo no puede estar vacío', required)},
+        sizeNameEnglish: { required:helpers.withMessage('Este campo no puede estar vacío', required)}
     }
 
     const v$ = useVuelidate(rules, state)
@@ -40,11 +46,10 @@
             
             const data = {
                 "title": state.sizeName,
+                "titleEnglish": state.sizeNameEnglish
             }
 
             await updateSize(route.params.id.toString(), data)
-            clearForm()
-            await getSizes()
             loading.value = false
 
             showNotification('Talla actualizada exitosamente', 'success')
@@ -59,14 +64,6 @@
 
     }
 
-    const clearForm = () => {
-
-        state.sizeName = ''
-
-        v$?.value.$reset()
-
-    }
-
     const getSizes = async () => {
         const result = await lastestSizes()
         lastestSizesList.value = result.data?.sizes
@@ -75,6 +72,7 @@
         const sizeId = route.params.id.toString()
         const result = await getSize(sizeId)
         state.sizeName = result.data?.name
+        state.sizeNameEnglish = result.data?.englishName
         getSizes()
     })
 
@@ -89,6 +87,7 @@
             <div class="rounded-md bg-white shadow-lg p-4 w-4/5">
                 <form class="w-full" enctype="multipart/form-data" @submit.prevent="submitSize">
                     <TextField label="Titulo de la categoría" type="text" placeholder="Ingrese el nombre de la talla" :error="`${nameError}`" v-model="state.sizeName"/>
+                    <TextField label="Titulo de la talla en inglés" type="text" placeholder="Ingrese el nombre de la talla en inglés" :error="`${nameEnglishError}`" v-model="state.sizeNameEnglish"/>
 
                     <Button buttonType="submit" title="Actualizar talla" color="bg-blue-500" :loading="loading"/>
                 </form>

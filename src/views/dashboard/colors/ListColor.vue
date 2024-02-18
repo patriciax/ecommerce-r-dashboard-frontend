@@ -8,13 +8,15 @@
     import {showNotification} from '@/composables/useNotification';
     import Spinner from '@/assets/icons/Spinner.vue';
     import { useRouter } from 'vue-router'
+import Pagination from '@/components/Pagination.vue';
 
     const router = useRouter()
     const colors:any = ref([])
     const limit = ref(10)
-    const page = ref(1)
     const loadingDelete = ref(false)
     const loadingColors = ref(false)
+    const totalPages = ref(1)
+    const actualPage = ref(1)
 
     const deleteColor = async(id:string) => {
         try{
@@ -39,9 +41,12 @@
         await router.push({name: 'edit-color', params: {id}})
     }
 
-    const getColors = async () => {
+    const getColors = async (page = 1) => {
+        actualPage.value = page
         loadingColors.value = true
-        const response = await colorList()
+        const response = await colorList(limit.value, actualPage.value)
+        
+        totalPages.value = response.totalPages
         colors.value = response.data?.colors
         loadingColors.value = false
     }
@@ -95,6 +100,7 @@
                     </tbody>
                 </table>
             </div>
+            <Pagination @changePageEmit="(page) => getColors(page)" :totalPages="totalPages" :actualPage="actualPage" />
         </div>
     </section>
 </template>

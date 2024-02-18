@@ -5,11 +5,12 @@
     
     import { reactive, ref, nextTick, computed, onMounted } from 'vue';
     import InputField from '@/components/InputField.vue';
-    import { createCategory } from '@/api/repositories/category.repository';
+    import { createCategory, getAllCategories } from '@/api/repositories/category.repository';
     import { helpers, integer, numeric, required } from '@vuelidate/validators';
     import useVuelidate from '@vuelidate/core';
     import {showNotification} from '@/composables/useNotification';
     import {lastestCategories} from '@/api/repositories/category.repository';
+    import SelectField from '@/components/SelectField.vue';
 
     const lastestCategoriesList:any = ref([])
 
@@ -17,14 +18,34 @@
         return v$?.value.$errors?.find(item => item.$property === 'categoryName')?.$message || ''
     })
 
+    const nameErrorEnglish = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'categoryNameEnglish')?.$message || ''
+    })
+
+    const categoryTypeError = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'categoryType')?.$message || ''
+    })
+
     const showImageInputs = ref(true)
     const loading = ref(false)
+
+    const allCategories = ref([])
+    const optionsType = ref([
+        {id:'main', name:'Principal'},
+        {id:'sub', name:'Subcategoría'},
+        {id:'final', name:'Categoría final'},
+    ])
     const state = reactive({
-        categoryName: ''
+        categoryName: '',
+        categoryNameEnglish:'',
+        categoryType: '',
+        categoryParent: ''
     });
 
     const rules = {
-        categoryName: { required:helpers.withMessage('Este campo no puede estar vacío', required)}
+        categoryName: { required:helpers.withMessage('Este campo no puede estar vacío', required)},
+        categoryNameEnglish: { required:helpers.withMessage('Este campo no puede estar vacío', required)},
+        categoryType: { required:helpers.withMessage('Este campo no puede estar vacío', required)}
     }
 
     const v$ = useVuelidate(rules, state)
@@ -42,7 +63,7 @@
         const isFormCorrect = await v$.value.$validate();
         if (!isFormCorrect) return
 
-        loading.value = true
+        
         try{
 
             var images64:any = []
@@ -53,6 +74,8 @@
                 showNotification('Imágen es obligatoria', 'error')
                 return
             }
+
+            loading.value = true
 
             const reader = new FileReader();
 
@@ -70,6 +93,9 @@
             const data = {
                 "mainImage": mainImage64,
                 "title": state.categoryName,
+                "titleEnglish": state.categoryNameEnglish,
+                "categoryType": state.categoryType,
+                "categoryParent": state.categoryParent
             }
 
             const result = await createCategory(data)
@@ -78,8 +104,15 @@
                 showNotification('Categoría creada exitosamente', 'success')
             }
 
-            clearForm()
             await getCategories()
+            const response = await getAllCategories()
+            allCategories.value = response.data?.categories?.map((item:any) => {
+                return {
+                    id: item._id,
+                    name: item.name
+                }
+            })
+            clearForm()
             loading.value = false
 
         }catch(error){
@@ -93,6 +126,9 @@
     const clearForm = () => {
 
         state.categoryName = ''
+        state.categoryNameEnglish = ''
+        state.categoryParent = ''
+        state.categoryType = ''
 
         showImageInputs.value = false
         nextTick(() => {
@@ -108,7 +144,14 @@
         lastestCategoriesList.value = result.data?.categories
     }
 
-    onMounted( () => { 
+    onMounted( async() => { 
+        const response = await getAllCategories()
+        allCategories.value = response.data?.categories?.map((item:any) => {
+            return {
+                id: item._id,
+                name: item.name
+            }
+        })
         getCategories()
     })
 
@@ -123,6 +166,11 @@
             <div class="rounded-md bg-white shadow-lg p-4 w-4/5">
                 <form class="w-full" enctype="multipart/form-data" @submit.prevent="submitCategory">
                     <TextField label="Titulo de la categoría" type="text" placeholder="Ingrese el nombre de la categoría" :error="`${nameError}`" v-model="state.categoryName"/>
+                    <TextField label="Titulo de la categoría en inglés" type="text" placeholder="Ingrese el nombre de la categoría en inglés" :error="`${nameErrorEnglish}`" v-model="state.categoryNameEnglish"/>
+
+                    <SelectField label="Tipo de categoría" placeholder="seleccione" :options="optionsType" v-model="state.categoryType" :error="categoryTypeError"/>
+
+                    <SelectField label="Categoría padre" placeholder="seleccione" :options="allCategories" v-model="state.categoryParent" />
 
                     <div class="flex w-full mb-3" v-if="showImageInputs">
                         <div>

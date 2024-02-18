@@ -2,9 +2,9 @@
     import TextField from '@/components/TextField.vue';
     import Button from '@/components/Button.vue';
     
-    import { reactive, ref, nextTick, computed, onMounted } from 'vue';
-    import { createEmployee, getEmployees, lastestEmployees } from '@/api/repositories/user.repository';
-    import { helpers, minLength, required, email, alphaNum } from '@vuelidate/validators';
+    import { reactive, ref, computed, onMounted } from 'vue';
+    import { createEmployee, lastestEmployees, verifyRepeatedEmail } from '@/api/repositories/user.repository';
+    import { helpers, minLength, required, email } from '@vuelidate/validators';
     import useVuelidate from '@vuelidate/core';
     import {showNotification} from '@/composables/useNotification';
 
@@ -41,6 +41,14 @@
 
         const isFormCorrect = await v$.value.$validate();
         if (!isFormCorrect) return
+
+        const response = await verifyRepeatedEmail({
+            "email": state.employeeEmail
+        })
+        if(response.status == "success"){
+            showNotification("Este email ya existe", "error")
+            return
+        }
 
         loading.value = true
         try{

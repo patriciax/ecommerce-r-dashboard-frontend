@@ -8,11 +8,13 @@
     import {showNotification} from '@/composables/useNotification';
     import Spinner from '@/assets/icons/Spinner.vue';
     import { useRouter } from 'vue-router'
+    import Pagination from '@/components/Pagination.vue';
 
     const router = useRouter()
     const products:any = ref([])
     const limit = ref(10)
-    const page = ref(1)
+    const actualPage = ref(1)
+    const totalPages = ref(1)
     const loadingDelete = ref(false)
     const loadingProducts = ref(false)
 
@@ -39,9 +41,11 @@
         await router.push({name: 'edit-product', params: {id}})
     }
 
-    const getProducts = async () => {
+    const getProducts = async (page = 1) => {
+        actualPage.value = page
         loadingProducts.value = true
-        const response = await productList()
+        const response = await productList(limit.value, actualPage.value)
+        totalPages.value = response.totalPages
         products.value = response.data?.products
         loadingProducts.value = false
     }
@@ -98,6 +102,7 @@
                     </tbody>
                 </table>
             </div>
+            <Pagination @changePageEmit="(page:number) => getProducts(page)" :totalPages="totalPages" :actualPage="actualPage" />
         </div>
     </section>
 </template>

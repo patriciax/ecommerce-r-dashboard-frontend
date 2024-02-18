@@ -9,13 +9,15 @@ import EditIcon from '@/components/icons/EditIcon.vue';
 import {showNotification} from '@/composables/useNotification';
 import Spinner from '@/assets/icons/Spinner.vue';
 import { useRouter } from 'vue-router'
+import Pagination from '@/components/Pagination.vue';
 
 const router = useRouter()
     const categories:any = ref([])
     const limit = ref(10)
-    const page = ref(1)
+    const actualPage = ref(1)
     const loadingDelete = ref(false)
     const loadingCategories = ref(false)
+    const totalPages = ref(1)
 
     const deleteCategory = async(id:string) => {
         try{
@@ -40,10 +42,12 @@ const router = useRouter()
         await router.push({name: 'edit-category', params: {id}})
     }
 
-    const getCategories = async () => {
+    const getCategories = async (page = 1) => {
+        actualPage.value = page
         loadingCategories.value = true
-        const response = await categoryList()
+        const response = await categoryList(limit.value, actualPage.value)
         categories.value = response.data?.categories
+        totalPages.value = response.totalPages
         loadingCategories.value = false
     }
 
@@ -98,6 +102,7 @@ const router = useRouter()
                     </tbody>
                 </table>
             </div>
+            <Pagination @changePageEmit="(page) => getCategories(page)" :totalPages="totalPages" :actualPage="actualPage" />
         </div>
     </section>
 </template>

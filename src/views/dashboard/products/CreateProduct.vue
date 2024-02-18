@@ -12,7 +12,6 @@
     import {allSizes} from '@/api/repositories/product.repository';
     import {allColors} from '@/api/repositories/product.repository';
     import {allCategories} from '@/api/repositories/product.repository';
-    import SelectField from '@/components/SelectField.vue';
     import MultipleSelectField from '@/components/MultipleSelectField.vue';
 
     const lastestProductsList:any = ref([])
@@ -21,16 +20,40 @@
         return v$?.value.$errors?.find(item => item.$property === 'productName')?.$message || ''
     })
 
+    const productErrorEnglish = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'productNameEnglish')?.$message || ''
+    })
+
     const descriptionError = computed(() => {
         return v$?.value.$errors?.find(item => item.$property === 'description')?.$message || ''
+    })
+
+    const descriptionErrorEnglish = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'descriptionEnglish')?.$message || ''
     })
 
     const priceError = computed(() => {
         return v$?.value.$errors?.find(item => item.$property === 'price')?.$message || ''
     })
 
+    const priceDiscountError = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'priceDiscount')?.$message || ''
+    })
+
     const stockError = computed(() => {
         return v$?.value.$errors?.find(item => item.$property === 'stock')?.$message || ''
+    })
+
+    const categoriesError = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'categories')?.$message || ''
+    })
+
+    const colorsError = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'colors')?.$message || ''
+    })
+
+    const sizesError = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'sizes')?.$message || ''
     })
 
     const showImageInputs = ref(true)
@@ -41,11 +64,14 @@
     const state = reactive({
         colors:[],
         sizes:[],
-        category: '',
+        categories: [],
         productName: '',
+        productNameEnglish: '',
         description: '',
+        descriptionEnglish: '',
         price: null,
-        stock: null
+        stock: null,
+        priceDiscount: ''
     });
 
     const changeColors = (value:any) => {
@@ -56,14 +82,21 @@
         state.sizes = value
     }
 
+    const changeCategories = (value:any) => {
+      state.categories = value
+    }
+
     const rules = {
         productName: { required:helpers.withMessage('Este campo no puede estar vacío', required)},
+        productNameEnglish: { required:helpers.withMessage('Este campo no puede estar vacío', required)},
         description: { required:helpers.withMessage('Este campo no puede estar vacío', required) },
+        descriptionEnglish: { required:helpers.withMessage('Este campo no puede estar vacío', required)},
         price: { required:helpers.withMessage('Este campo no puede estar vacío', required), numeric:helpers.withMessage('Solo se permiten números', numeric) },
         stock: { required:helpers.withMessage('Este campo no puede estar vacío', required), integer:helpers.withMessage('Solo se permiten números', integer) },
         colors: { required:helpers.withMessage('Este campo no puede estar vacío', required) },
-        category: { required:helpers.withMessage('Este campo no puede estar vacío', required) },
-        sizes: { required:helpers.withMessage('Este campo no puede estar vacío', required) }
+        categories: { required:helpers.withMessage('Este campo no puede estar vacío', required) },
+        sizes: { required:helpers.withMessage('Este campo no puede estar vacío', required) },
+        priceDiscount: { numeric:helpers.withMessage('Solo se permiten números', numeric) },
     }
 
     const v$ = useVuelidate(rules, state)
@@ -90,6 +123,7 @@
 
             if(imagefile.files.length == 0){
                 showNotification('Imágen principal es obligatoria', 'error')
+                loading.value = false
                 return
             }
 
@@ -126,13 +160,16 @@
             const data = {
                 "colors": state.colors,
                 "sizes": state.sizes,
-                "category": state.category,
+                "categories": state.categories,
                 "mainImage": mainImage64,
                 "images": images64,
                 "title": state.productName,
+                "titleEnglish": state.productNameEnglish,
                 "price": state.price,
                 "stock": state.stock,
-                "description": state.description
+                "description": state.description,
+                "descriptionEnglish": state.descriptionEnglish,
+                "priceDiscount": state.priceDiscount || 0
             }
 
             await createProduct(data)
@@ -154,11 +191,14 @@
 
         state.productName = ''
         state.description = ''
+        state.productNameEnglish = ''
+        state.descriptionEnglish = ''
         state.price = null
         state.stock = null
         state.colors = []
         state.sizes = []
-        state.category = ''
+        state.categories = []
+        state.priceDiscount = ''
 
         showImageInputs.value = false
         nextTick(() => {
@@ -231,12 +271,29 @@
                 v-model="state.productName"
               />
 
+              <TextField
+                class="w-full pr-3"
+                label="Titulo del producto en inglés"
+                type="text"
+                placeholder="Ingrese el nombre del producto en inglés"
+                :error="`${productErrorEnglish}`"
+                v-model="state.productNameEnglish"
+              />
+
               <TextArea
                 v-if="showImageInputs"
                 label="Descripción del producto"
                 placeholder="Ingrese la descripción del producto"
                 :error="`${descriptionError}`"
                 v-model="state.description"
+              />
+
+              <TextArea
+                v-if="showImageInputs"
+                label="Descripción del producto en inglés"
+                placeholder="Ingrese la descripción del producto en inglés"
+                :error="`${descriptionErrorEnglish}`"
+                v-model="state.descriptionEnglish"
               />
             </div>
 
@@ -255,6 +312,16 @@
                 <TextField
                   class="w-full"
                   :onlyNumber="true"
+                  label="Precio de descuento"
+                  type="text"
+                  placeholder="Ingrese el precio de descuento"
+                  :error="`${priceDiscountError}`"
+                  v-model="state.priceDiscount"
+                />
+
+                <TextField
+                  class="w-full"
+                  :onlyNumber="true"
                   label="Stock del producto"
                   type="text"
                   placeholder="Ingrese el stock del producto"
@@ -263,27 +330,31 @@
                 />
               </div>
               <div class="flex w-full gap-4">
-                <SelectField
+                <MultipleSelectField v-if="showImageInputs"
+                  @changeValue="changeCategories"
                   label="Categorías"
-                  placeholder="Seleccione una categoría"
+                  placeholder="Seleccione uno o varias categorías"
                   :options="categories"
-                  v-model="state.category"
+                  v-model="state.categories"
+                  :error="`${categoriesError}`"
                 />
               </div>
               <div class="flex w-full gap-4">
-                <MultipleSelectField
+                <MultipleSelectField v-if="showImageInputs"
                   @changeValue="changeColors"
                   label="Colores"
                   placeholder="Seleccione uno o varios colors"
                   :options="colors"
                   v-model="state.colors"
+                  :error="`${colorsError}`"
                 />
-                <MultipleSelectField
+                <MultipleSelectField v-if="showImageInputs"
                   @changeValue="changeSizes"
                   label="Tallas"
                   placeholder="Seleccione uno o varias tallas"
                   :options="sizes"
                   v-model="state.sizes"
+                  :error="`${sizesError}`"
                 />
               </div>
             </section>

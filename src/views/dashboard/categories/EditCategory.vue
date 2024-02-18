@@ -1,19 +1,19 @@
 <script setup lang="ts">
     import TextField from '@/components/TextField.vue';
     import Button from '@/components/Button.vue';
-    import TextArea from '@/components/TextArea.vue';
     
-    import { reactive, ref, nextTick, computed, onMounted } from 'vue';
+    import { reactive, ref, computed, onMounted } from 'vue';
     import InputField from '@/components/InputField.vue';
-    import { updateCategory } from '@/api/repositories/category.repository';
-    import { helpers, integer, numeric, required } from '@vuelidate/validators';
+    import { getAllCategories, updateCategory } from '@/api/repositories/category.repository';
+    import { helpers, required } from '@vuelidate/validators';
     import useVuelidate from '@vuelidate/core';
     import {showNotification} from '@/composables/useNotification';
     import {lastestCategories, getCategory} from '@/api/repositories/category.repository';
     import { useRoute } from 'vue-router';
-import ButtonIcon from '@/components/ButtonIcon.vue';
-import TrashIcon from '@/components/icons/TrashIcon.vue';
-import router from '@/router';
+    import ButtonIcon from '@/components/ButtonIcon.vue';
+    import TrashIcon from '@/components/icons/TrashIcon.vue';
+    import router from '@/router';
+import SelectField from '@/components/SelectField.vue';
 
     const route = useRoute()
     const lastestCategoriesList:any = ref([])
@@ -22,15 +22,35 @@ import router from '@/router';
         return v$?.value.$errors?.find(item => item.$property === 'categoryName')?.$message || ''
     })
 
+    const nameErrorEnglish = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'categoryNameEnglish')?.$message || ''
+    })
+
+    const categoryTypeError = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'categoryType')?.$message || ''
+    })
+
+    const allCategories = ref([])
     const showImageInputs = ref(false)
     const loading = ref(false)
     const image = ref("")
+
+    const optionsType = ref([
+        {id:'main', name:'Principal'},
+        {id:'sub', name:'Subcategoría'},
+        {id:'final', name:'Categoría final'},
+    ])
     const state = reactive({
-        categoryName: ''
+        categoryName: '',
+        categoryNameEnglish: '',
+        categoryType: '',
+        categoryParent: ''
     });
 
     const rules = {
-        categoryName: { required:helpers.withMessage('Este campo no puede estar vacío', required)}
+        categoryName: { required:helpers.withMessage('Este campo no puede estar vacío', required)},
+        categoryNameEnglish: { required:helpers.withMessage('Este campo no puede estar vacío', required)},
+        categoryType: { required:helpers.withMessage('Este campo no puede estar vacío', required)}
     }
 
     const v$ = useVuelidate(rules, state)
@@ -78,15 +98,24 @@ import router from '@/router';
                 "oldImage": image.value,
                 "mainImage": mainImage64,
                 "title": state.categoryName,
+                "titleEnglish": state.categoryNameEnglish,
+                "categoryType": state.categoryType,
+                "categoryParent": state.categoryParent
             }
 
             const result = await updateCategory(route.params.id.toString(), data)
 
             await getCategories()
+            const response = await getAllCategories()
+            allCategories.value = response.data?.categories?.map((item:any) => {
+                return {
+                    id: item._id,
+                    name: item.name
+                }
+            })
             loading.value = false
 
             if(result.status == 'success'){
-                clearForm()
                 showNotification('Categoría actualizada exitosamente', 'success')
                 await router.push({name: 'list-category'})
             }
@@ -99,12 +128,6 @@ import router from '@/router';
 
     }
 
-    const clearForm = () => {
-
-        state.categoryName = ''
-        v$?.value.$reset()
-
-    }
     const deleteImage = () => {
         image.value = ''
         showImageInputs.value = true
@@ -117,8 +140,18 @@ import router from '@/router';
         const categoryId = route.params.id.toString()
         const result = await getCategory(categoryId)
         state.categoryName = result.data?.name
+        state.categoryNameEnglish = result.data?.englishName
+        state.categoryType = result.data?.categoryType
+        state.categoryParent = result.data?.parent_id
         image.value= result.data?.image
         getCategories()
+        const response = await getAllCategories()
+        allCategories.value = response.data?.categories?.map((item:any) => {
+            return {
+                id: item._id,
+                name: item.name
+            }
+        })
     })
 
 </script>
@@ -132,6 +165,11 @@ import router from '@/router';
             <div class="rounded-md bg-white shadow-lg p-4 w-4/5">
                 <form class="w-full" enctype="multipart/form-data" @submit.prevent="submitCategory">
                     <TextField label="Titulo de la categoría" type="text" placeholder="Ingrese el nombre de la categoría" :error="`${nameError}`" v-model="state.categoryName"/>
+                    <TextField label="Titulo de la categoría en inglés" type="text" placeholder="Ingrese el nombre de la categoría en inglés" :error="`${nameErrorEnglish}`" v-model="state.categoryNameEnglish"/>
+
+                    <SelectField label="Tipo de categoría" placeholder="seleccione" :options="optionsType" v-model="state.categoryType" :error="categoryTypeError"/>
+
+                    <SelectField label="Categoría padre" placeholder="seleccione" :options="allCategories" v-model="state.categoryParent"/>
 
                     <div class="flex items-center" v-if="image">
                         <img :src="image" alt="product" class="w-32 h-32"/>

@@ -19,7 +19,6 @@ const setHeaders = () => {
 export const axiosPost = async(url:string, data:object) => {
 
     try{
-        
         const response = await axios.post(`${import.meta.env.VITE_API_URL}${url}`, data, {
             headers: setHeaders()
         })

@@ -1,12 +1,10 @@
 <script setup lang="ts">
     import TextField from '@/components/TextField.vue';
     import Button from '@/components/Button.vue';
-    import TextArea from '@/components/TextArea.vue';
     
-    import { reactive, ref, nextTick, computed, onMounted } from 'vue';
-    import InputField from '@/components/InputField.vue';
+    import { reactive, ref, computed, onMounted } from 'vue';
     import { updateColor, lastestColors, getColors } from '@/api/repositories/color.repository';
-    import { helpers, integer, numeric, required } from '@vuelidate/validators';
+    import { helpers, required } from '@vuelidate/validators';
     import useVuelidate from '@vuelidate/core';
     import {showNotification} from '@/composables/useNotification';
     import { useRoute } from 'vue-router';
@@ -19,18 +17,24 @@
         return v$?.value.$errors?.find(item => item.$property === 'colorName')?.$message || ''
     })
 
+    const nameErrorEnglish = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'colorNameEnglish')?.$message || ''
+    })
+
     const hexError = computed(() => {
         return v$?.value.$errors?.find(item => item.$property === 'hex')?.$message || ''
     })
 
     const loading = ref(false)
     const state = reactive({
+        colorNameEnglish: '',
         colorName: '',
         hex:''
     });
 
     const rules = {
         colorName: { required:helpers.withMessage('Este campo no puede estar vacío', required)},
+        colorNameEnglish: { required:helpers.withMessage('Este campo no puede estar vacío', required)},
         hex: { required:helpers.withMessage('Este campo no puede estar vacío', required)}
     }
 
@@ -46,6 +50,7 @@
             
             const data = {
                 "title": state.colorName,
+                "titleEnglish": state.colorNameEnglish,
                 "hex": state.hex
 
             }
@@ -55,26 +60,15 @@
             if(result.status == 'success'){
                 showNotification('Color actualizado exitosamente', 'success')
             }
-
-            clearForm()
-            await lastColors()
             loading.value = false
 
-            await router.push({name: 'list-size'})
+            await router.push({name: 'list-color'})
 
         }catch(error){
             console.log(error)
             showNotification('Error al actualizar talla', 'error')
 
         }
-
-    }
-
-    const clearForm = () => {
-
-        state.colorName = ''
-        state.hex = ''
-        v$?.value.$reset()
 
     }
 
@@ -86,6 +80,7 @@
         const colorId = route.params.id.toString()
         const result = await getColors(colorId)
         state.colorName = result.data?.name
+        state.colorNameEnglish = result.data?.englishName
         state.hex = result.data?.hex
         lastColors()
     })
@@ -101,9 +96,10 @@
             <div class="rounded-md bg-white shadow-lg p-4 w-4/5">
                 <form class="w-full" enctype="multipart/form-data" @submit.prevent="submitColor">
                     <TextField label="Titulo del color" type="text" placeholder="Ingrese el nombre del color" :error="`${nameError}`" v-model="state.colorName"/>
+                    <TextField label="Titulo del color en ingles" type="text" placeholder="Ingrese el nombre del color en inglés" :error="`${nameErrorEnglish}`" v-model="state.colorNameEnglish"/>
                     <TextField label="Color" type="color" :error="`${hexError}`" v-model="state.hex"/>
 
-                    <Button buttonType="submit" title="Actualizar talla" color="bg-blue-500" :loading="loading"/>
+                    <Button buttonType="submit" title="Actualizar color" color="bg-blue-500" :loading="loading"/>
                 </form>
             </div>
             <div class="rounded-md bg-white shadow-lg w-1/5 p-4">

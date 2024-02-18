@@ -2,9 +2,9 @@
     import TextField from '@/components/TextField.vue';
     import Button from '@/components/Button.vue';
     import TextArea from '@/components/TextArea.vue';
-    import { reactive, ref, nextTick, computed, onMounted } from 'vue';
+    import { reactive, ref, computed, onMounted } from 'vue';
     import InputField from '@/components/InputField.vue';
-    import { createProduct, getProduct } from '@/api/repositories/product.repository';
+    import { updateProduct, getProduct, deleteSecondaryImage } from '@/api/repositories/product.repository';
     import { helpers, integer, numeric, required } from '@vuelidate/validators';
     import useVuelidate from '@vuelidate/core';
     import {showNotification} from '@/composables/useNotification';
@@ -12,9 +12,11 @@
     import {allSizes} from '@/api/repositories/product.repository';
     import {allColors} from '@/api/repositories/product.repository';
     import {allCategories} from '@/api/repositories/product.repository';
-    import SelectField from '@/components/SelectField.vue';
     import MultipleSelectField from '@/components/MultipleSelectField.vue';
     import {useRoute} from 'vue-router';
+    import ButtonIcon from '@/components/ButtonIcon.vue';
+    import TrashIcon from '@/components/icons/TrashIcon.vue';
+    import router from '@/router';
 
     const route = useRoute()
     const lastestProductsList:any = ref([])
@@ -23,18 +25,46 @@
         return v$?.value.$errors?.find(item => item.$property === 'productName')?.$message || ''
     })
 
+    const productErrorEnglish = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'productNameEnglish')?.$message || ''
+    })
+
     const descriptionError = computed(() => {
         return v$?.value.$errors?.find(item => item.$property === 'description')?.$message || ''
+    })
+
+    const descriptionErrorEnglish = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'descriptionEnglish')?.$message || ''
     })
 
     const priceError = computed(() => {
         return v$?.value.$errors?.find(item => item.$property === 'price')?.$message || ''
     })
 
+    const priceDiscountError = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'priceDiscount')?.$message || ''
+    })
+
     const stockError = computed(() => {
         return v$?.value.$errors?.find(item => item.$property === 'stock')?.$message || ''
     })
 
+    const categoriesError = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'categories')?.$message || ''
+    })
+
+    const colorsError = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'colors')?.$message || ''
+    })
+
+    const sizesError = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'sizes')?.$message || ''
+    })
+
+    const defaultMainImage = ref('')
+    const defaultImages = ref([])
+
+    const showDefaultImage = ref(true)
     const showImageInputs = ref(true)
     const loading = ref(false)
     const sizes = ref([])
@@ -42,13 +72,17 @@
     const categories = ref([])
     const defaultColors = ref([])
     const defaultSizes = ref([])
+    const defaultCategories = ref([])
     const state = reactive({
         colors:[],
         sizes:[],
-        category: '',
+        categories: [],
         productName: '',
+        productNameEnglish: '',
         description: '',
+        descriptionEnglish: '',
         price: null,
+        priceDiscount: 0,
         stock: null
     });
 
@@ -60,13 +94,19 @@
         state.sizes = value
     }
 
+    const changeCategories = (value:any) => {
+      state.categories = value
+    }
+
     const rules = {
         productName: { required:helpers.withMessage('Este campo no puede estar vacío', required)},
+        productNameEnglish: { required:helpers.withMessage('Este campo no puede estar vacío', required)},
         description: { required:helpers.withMessage('Este campo no puede estar vacío', required) },
+        descriptionEnglish: { required:helpers.withMessage('Este campo no puede estar vacío', required) },
         price: { required:helpers.withMessage('Este campo no puede estar vacío', required), numeric:helpers.withMessage('Solo se permiten números', numeric) },
         stock: { required:helpers.withMessage('Este campo no puede estar vacío', required), integer:helpers.withMessage('Solo se permiten números', integer) },
         colors: { required:helpers.withMessage('Este campo no puede estar vacío', required) },
-        category: { required:helpers.withMessage('Este campo no puede estar vacío', required) },
+        categories: { required:helpers.withMessage('Este campo no puede estar vacío', required) },
         sizes: { required:helpers.withMessage('Este campo no puede estar vacío', required) }
     }
 
@@ -88,88 +128,74 @@
         loading.value = true
         try{
 
+            let secondaryImageToEdit = false
             var images64:any = []
             let imagefile:any = document.querySelector('.main');
             var mainImage64:any = null
+            
+            if(imagefile.files.length > 0){
+                const reader = new FileReader();
 
-            if(imagefile.files.length == 0){
-                showNotification('Imágen principal es obligatoria', 'error')
-                return
+                reader.onload = function() {
+                    const base64String = reader.result;
+                    mainImage64 = base64String
+                };
+
+                reader.readAsDataURL(imagefile.files[0]);   
             }
-
-            const reader = new FileReader();
-
-            reader.onload = function() {
-                const base64String = reader.result;
-                mainImage64 = base64String
-            };
-
-            reader.readAsDataURL(imagefile.files[0]);
 
             const secondaryImages:any = Array.from(document.querySelectorAll('.secondary'))
-            for(let image of secondaryImages){
 
-                if(image.files.length > 0){
-                    const readerSecondary = new FileReader();
+            if(secondaryImages){
+                for(let image of secondaryImages){
+                    
+                    if(image.files.length > 0){
+                        secondaryImageToEdit = true
+                        const readerSecondary = new FileReader();
 
-                    readerSecondary.onload = function() {
-                        const base64String = readerSecondary.result;
+                        readerSecondary.onload = function() {
+                            const base64String = readerSecondary.result;
 
-                        images64.push(base64String)
-                    };
+                            images64.push(base64String)
+                        };
 
-                    readerSecondary.readAsDataURL(image.files[0]);
+                        readerSecondary.readAsDataURL(image.files[0]);
+                    }
+
                 }
-                
             }
 
-            while(mainImage64 == null && images64.length == 0){
-                await awaitTime()
+            if(secondaryImageToEdit || imagefile.files.length){
+                while(mainImage64 == null && images64.length == 0){
+                    await awaitTime()
+                }
             }
             
             const data = {
                 "colors": state.colors,
                 "sizes": state.sizes,
-                "category": state.category,
+                "categories": state.categories,
                 "mainImage": mainImage64,
                 "images": images64,
-                "title": state.productName,
+                "name": state.productName,
+                "nameEnglish": state.productNameEnglish,
                 "price": state.price,
                 "stock": state.stock,
-                "description": state.description
+                "priceDiscount": state.priceDiscount || 0,
+                "description": state.description,
+                "descriptionEnglish": state.descriptionEnglish
             }
 
-            await createProduct(data)
-            clearForm()
-            await getProducts()
+            await updateProduct(route.params.id.toString(), data)
             loading.value = false
 
-            showNotification('Producto creado exitosamente', 'success')
-
+            showNotification('Producto actualizado exitosamente', 'success')
+            router.push({name: 'list-product'})
         }catch(error){
             console.log(error)
             showNotification('Error al crear el producto', 'error')
 
         }
-
-    }
-
-    const clearForm = () => {
-
-        state.productName = ''
-        state.description = ''
-        state.price = null
-        state.stock = null
-        state.colors = []
-        state.sizes = []
-        state.category = ''
-
-        showImageInputs.value = false
-        nextTick(() => {
-            showImageInputs.value = true
-        })
-
-        v$?.value.$reset()
 
     }
 
@@ -211,26 +237,39 @@
     const loadProduct = async (productId:string) => {
         const result = await getProduct(productId)
         state.productName = result.data?.name
+        state.productNameEnglish = result.data?.nameEnglish
         state.description = result.data?.description
+        state.descriptionEnglish = result.data?.descriptionEnglish
         state.price = result.data?.price
         state.stock = result.data?.stock
         state.colors = result.data?.colors
         state.sizes = result.data?.sizes
-        state.category = result.data?.category
+        state.categories = result.data?.categories
+        state.priceDiscount = result.data?.priceDiscount
+        defaultMainImage.value = result.data?.mainImage
+        defaultImages.value = result.data?.images
 
-        defaultColors.value = result.data?.colors
-        defaultSizes.value = result.data?.sizes
+        defaultColors.value = state.colors.filter((color:any) => colors.value.find((defaultColor:any) => defaultColor.id.toString() === color.toString()))
+        defaultSizes.value = state.sizes.filter((size:any) => sizes.value.find((defaultSize:any) => defaultSize.id.toString() === size.toString()))
+        defaultCategories.value = state.categories.filter((category:any) => categories.value.find((defaultCategory:any) => defaultCategory.id.toString() === category.toString()))
     }
 
-    onMounted( () => { 
+    const deleteSecondImage = async (imageUrl:String) => {
+
+        const imageIndex = imageUrl.substring(imageUrl.lastIndexOf('/') + 1, imageUrl.length)
+        await deleteSecondaryImage(route.params.id.toString(), imageIndex)
+        defaultImages.value = defaultImages.value.filter((image:any) => image !== imageUrl)
+    }
+
+    onMounted( async () => { 
 
         const productId = route.params.id.toString()
 
-        getProducts()
-        getAllSizes()
-        getAllColors()
-        getAllCategories()
-        loadProduct(productId)
+        await getProducts()
+        await getAllSizes()
+        await getAllColors()
+        await getAllCategories()
+        await loadProduct(productId)
     })
 
 </script>
@@ -245,39 +284,80 @@
                 <form class="w-full" enctype="multipart/form-data" @submit.prevent="submitProduct">
                     <TextField label="Titulo del producto" type="text" placeholder="Ingrese el nombre del producto" :error="`${productError}`" v-model="state.productName"/>
 
+                    <TextField label="Titulo del producto en inglés" type="text" placeholder="Ingrese el nombre del producto en inglés" :error="`${productErrorEnglish}`" v-model="state.productNameEnglish"/>
+
                     <div class="flex w-full gap-4">
                         <TextField class="w-full" :onlyNumber="true" label="Precio del producto" type="text" placeholder="Ingrese el precio del producto" :error="`${priceError}`" v-model="state.price"/>
+
+                        <TextField class="w-full" :onlyNumber="true" label="Precio de descuento producto" type="text" placeholder="Ingrese el precio de descuento del producto" :error="`${priceDiscountError}`" v-model="state.priceDiscount"/>
 
                         <TextField class="w-full" :onlyNumber="true" label="Stock del producto" type="text" placeholder="Ingrese el stock del producto" :error="`${stockError}`" v-model="state.stock"/>
                     </div>
 
                     <div class="flex w-full gap-4">
-                        <SelectField label="Categorías" placeholder="Seleccione una categoría" :options="categories"
-                        v-model="state.category"
+                        <MultipleSelectField
+                            v-if="categories"
+                            @changeValue="changeCategories"
+                            label="Categorías"
+                            placeholder="Seleccione uno o varias categorías"
+                            :options="categories"
+                            v-model="state.categories"
+                            :defaultValues="defaultCategories"
+                            :error="`${categoriesError}`"
                         />
                     </div>
                     <div class="flex w-full gap-4">
-                        <MultipleSelectField @changeValue="changeColors" label="Colores" placeholder="Seleccione uno o varios colors" :options="colors"
+                        <MultipleSelectField v-if="colors" @changeValue="changeColors" label="Colores" placeholder="Seleccione uno o varios colors" :options="colors"
                         v-model="state.colors"
                         :defaultValues="defaultColors"
+                        :error="`${colorsError}`"
                         />
-                        <MultipleSelectField @changeValue="changeSizes" label="Tallas" placeholder="Seleccione uno o varias tallas" :options="sizes"
+                        <MultipleSelectField v-if="sizes" @changeValue="changeSizes" label="Tallas" placeholder="Seleccione uno o varias tallas" :options="sizes"
                         v-model="state.sizes"
                         :defaultValues="defaultSizes"
+                        :error="`${sizesError}`"
                         />
                     </div>
 
                     <div class="flex w-full gap-4" v-if="showImageInputs">
                         <div>
                             <p class="font-bold">Imágen principal</p>
-                            <InputField class="w-full" ref="main" fieldId="main"/>
+                            <div class="flex flex-col">
+                                <InputField @changedImage="showDefaultImage = false" class="w-full" ref="main" fieldId="main"/>
+                                <img v-if="showDefaultImage" :src="defaultMainImage" alt="product" class="w-32 h-32" />
+                            </div>
+                            
                         </div>
                         <div>
                             <p class="font-bold">Imágenes secundarias</p>
                             <div class="flex">
-                                <InputField class="w-full" ref="main" fieldId="secondary"/>
-                                <InputField class="w-full" ref="main" fieldId="secondary"/>
-                                <InputField class="w-full" ref="main" fieldId="secondary"/>
+                                <div class="flex flex-col">
+                                    <InputField v-if="!defaultImages[0]" class="w-full" ref="main" fieldId="secondary"/>
+                                    <div v-else class="flex">
+                                        <img :src="defaultImages[0]" alt="product" class="w-32 h-32"/>
+                                        <ButtonIcon @click="deleteSecondImage(defaultImages[0])" color="bg-red-500" size="h-12">
+                                            <TrashIcon />
+                                        </ButtonIcon>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col">
+                                    <InputField v-if="!defaultImages[1]" class="w-full" ref="main" fieldId="secondary"/>
+                                    <div v-else class="flex">
+                                        <img :src="defaultImages[1]" alt="product" class="w-32 h-32"/>
+                                        <ButtonIcon @click="deleteSecondImage(defaultImages[1])" color="bg-red-500" size="h-12">
+                                            <TrashIcon />
+                                        </ButtonIcon>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col">
+                                    <InputField v-if="!defaultImages[2]" class="w-full" ref="main" fieldId="secondary"/>
+                                    <div v-else class="flex">
+                                        <img :src="defaultImages[2]" alt="product" class="w-32 h-32"/>
+                                        <ButtonIcon @click="deleteSecondImage(defaultImages[2])" color="bg-red-500" size="h-12">
+                                            <TrashIcon />
+                                        </ButtonIcon>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -285,7 +365,9 @@
 
                     <TextArea v-if="showImageInputs" label="Descripción del producto" placeholder="Ingrese la descripción del producto" :error="`${descriptionError}`" v-model="state.description" />
 
-                    <Button buttonType="submit" title="Crear producto" color="bg-blue-500" :loading="loading"/>
+                    <TextArea v-if="showImageInputs" label="Descripción del producto en inglés" placeholder="Ingrese la descripción del producto en inglés" :error="`${descriptionErrorEnglish}`" v-model="state.descriptionEnglish" />
+
+                    <Button buttonType="submit" title="Actualizar producto" color="bg-blue-500" :loading="loading"/>
                 </form>
             </div>
             <div class="rounded-md bg-white shadow-lg w-1/5 p-4">

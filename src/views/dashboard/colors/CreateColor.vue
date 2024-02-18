@@ -14,15 +14,21 @@
         return v$?.value.$errors?.find(item => item.$property === 'colorName')?.$message || ''
     })
 
+    const nameErrorEnglish = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'colorNameEnglish')?.$message || ''
+    })
+
     const loading = ref(false)
     const state = reactive({
         colorName: '',
+        colorNameEnglish : '',
         hexColor:''
     });
 
     const rules = {
         colorName: { required:helpers.withMessage('Este campo no puede estar vacío', required)},
-        hexColor: { required:helpers.withMessage('Este campo no puede estar vacío', required)}
+        hexColor: { required:helpers.withMessage('Este campo no puede estar vacío', required)},
+        colorNameEnglish: { required:helpers.withMessage('Este campo no puede estar vacío', required)},
     }
 
     const v$ = useVuelidate(rules, state)
@@ -37,6 +43,7 @@
             
             const data = {
                 "title": state.colorName,
+                "titleEnglish": state.colorNameEnglish,
                 "hexColor": state.hexColor,
             }
 
@@ -61,6 +68,7 @@
     const clearForm = () => {
 
         state.colorName = ''
+        state.colorNameEnglish = ''
         state.hexColor = ''
         v$?.value.$reset()
 
@@ -86,6 +94,7 @@
             <div class="rounded-md bg-white shadow-lg p-4 w-4/5">
                 <form class="w-full" enctype="multipart/form-data" @submit.prevent="submitColor">
                     <TextField label="Titulo del color" type="text" placeholder="Ingrese el nombre del color" :error="`${nameError}`" v-model="state.colorName"/>
+                    <TextField label="Titulo del color en ingles" type="text" placeholder="Ingrese el nombre del color en inglés" :error="`${nameErrorEnglish}`" v-model="state.colorNameEnglish"/>
                     <TextField label="Seleccione el color" type="color" :error="`${nameError}`" v-model="state.hexColor"/>
 
                     <Button buttonType="submit" title="Crear color" color="bg-blue-500" :loading="loading"/>

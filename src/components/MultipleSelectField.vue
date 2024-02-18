@@ -13,7 +13,11 @@ import { onMounted, ref, watch, type Ref } from 'vue';
         label: String,
         placeholder: String,
         options: Array<Option>,
-        defaultValues: Array<string>
+        defaultValues: Array<string>,
+        "error": {
+          type: String,
+          default: ''
+        },
     });
 
     const emit = defineEmits(['changeValue'])
@@ -44,10 +48,11 @@ import { onMounted, ref, watch, type Ref } from 'vue';
             <option value="null" selected disabled>{{ props.placeholder }}</option>
             <option :value="option.id" v-for="option in props.options">{{ option.name }}</option>
         </select>
+        <p class="text-red-300" v-if="props.error">{{ props.error }}</p>
 
         <div class="flex flex-wrap gap-2 mt-2">
             <div v-for="row in selectedRows" class="bg-gray-200 flex p-2 rounded-md items-center justify-between cursor-pointer" @click="removeOption(row)">
-                <span class="font-bold text-lg mr-3">{{ row.name }}</span>
+                <span class="font-bold text-lg mr-3">{{ row?.name }}</span>
                 <span>x</span>
             </div>
         </div>

@@ -6,3 +6,4 @@ export const getCategory = async (categoryId:string) => await axiosGet(`/v1/cate
 export const categoryList = async(limit=10, page = 1) => await axiosGet(`/v1/categories?limit=${limit}&page=${page}`)
 export const categoryDelete = async(categoryId:string) => await axiosDelete(`/v1/categories/${categoryId}`)
 export const updateCategory = async (categoryId:string, data:any) => await axiosPatch(`/v1/categories/${categoryId}`, data)
+export const getAllCategories = async () => await axiosGet('/v1/categories')

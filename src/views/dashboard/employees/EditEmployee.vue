@@ -2,13 +2,14 @@
     import TextField from '@/components/TextField.vue';
     import Button from '@/components/Button.vue';
     
-    import { reactive, ref, nextTick, computed, onMounted } from 'vue';
+    import { reactive, ref, computed, onMounted } from 'vue';
     import { getEmployee, lastestEmployees, updateEmployee } from '@/api/repositories/user.repository';
     import { helpers, minLength, required, email, alphaNum } from '@vuelidate/validators';
     import useVuelidate from '@vuelidate/core';
     import {showNotification} from '@/composables/useNotification';
-    import { useRoute } from 'vue-router';
+    import { useRoute, useRouter } from 'vue-router';
 
+    const router = useRouter()
     const route = useRoute()
     const lastestEmployeesList:any = ref([])
 
@@ -59,24 +60,15 @@
                 showNotification('Empleado actualizado exitosamente', 'success')
             }
 
-            clearForm()
-            await getLastEmployees()
             loading.value = false
+
+            await router.push({name: 'list-employees'})
 
         }catch(error){
             console.log(error)
             showNotification('Error al actualizar empleado', 'error')
 
         }
-
-    }
-
-    const clearForm = () => {
-
-        state.employeeName = ''
-        state.employeeEmail = ''
-        state.employeePassword = ''
-        v$?.value.$reset()
 
     }
 
@@ -109,7 +101,7 @@
             <div class="rounded-md bg-white shadow-lg p-4 w-4/5">
                 <form class="w-full" enctype="multipart/form-data" @submit.prevent="submitEmployee">
                     <TextField label="Nombre del empleado" type="text" placeholder="Ingrese el nombre del empleado" :error="`${nameError}`" v-model="state.employeeName"/>
-                    <TextField label="Email del empleado" type="text" placeholder="Ingrese el email del empleado" :error="`${emailError}`" v-model="state.employeeEmail"/>
+                    <TextField :disabled="true" label="Email del empleado" type="text" placeholder="Ingrese el email del empleado" :error="`${emailError}`" v-model="state.employeeEmail"/>
                     <TextField label="Clave del empleado" type="text" placeholder="Ingrese la clave del empleado" :error="`${passwordError}`" v-model="state.employeePassword"/>
 
                     <Button buttonType="submit" title="Crear empleado" color="bg-blue-500" :loading="loading"/>
