@@ -40,6 +40,11 @@ const employeeOptions = [
   { title: 'Crear empleado', link: '/dashboard/employee/create' },
   { title: 'Ver empleados', link: '/dashboard/employee/list' }
 ]
+
+const giftCardOptions = [
+  { title: 'Crear gift card', link: '/dashboard/gift-card/create' },
+  { title: 'Ver gift cards', link: '/dashboard/gift-card/list' }
+]
 </script>
 
 <template>
@@ -94,6 +99,12 @@ const employeeOptions = [
       title="Empleados"
       :options="employeeOptions"
       v-if="authStore.user?.role?.permissions.find((item: any) => item == 'EMPLOYEE-CREATE')"
+    />
+
+    <Accordion
+    :icon="SwatchIcon"
+      title="Gift cards"
+      :options="giftCardOptions"
     />
   </div>
 </template>

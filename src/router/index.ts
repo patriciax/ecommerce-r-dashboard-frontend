@@ -19,6 +19,9 @@ import EditEmployeeVue from '@/views/dashboard/employees/EditEmployee.vue'
 import ListProductVue from '@/views/dashboard/products/ListProduct.vue'
 import Home from '@/views/Home.vue'
 import EditProductVue from '@/views/dashboard/products/EditProduct.vue'
+import CreateGiftCardVue from '@/views/dashboard/giftCards/CreateGiftCard.vue'
+import ListGiftCardVue from '@/views/dashboard/giftCards/ListGiftCard.vue'
+import EditGiftCardVue from '@/views/dashboard/giftCards/EditGiftCard.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -136,6 +139,27 @@ const router = createRouter({
         path: '/dashboard/employee/:id',
         name: 'edit-employee',
         component: EditEmployeeVue,
+        meta: { requiresAuth: true },
+      },
+
+
+
+      {
+        path: '/dashboard/gift-card/create',
+        name: 'create-gift-card',
+        component: CreateGiftCardVue,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/dashboard/gift-card/list',
+        name: 'list-gift-card',
+        component: ListGiftCardVue,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/dashboard/gift-card/:id',
+        name: 'edit-gift-card',
+        component: EditGiftCardVue,
         meta: { requiresAuth: true },
       }
     ]
