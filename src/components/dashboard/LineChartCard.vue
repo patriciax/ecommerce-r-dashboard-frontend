@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-
+const props = defineProps({
+  bgIcon: String,
+  options: [Object],
+  colorChart: String
+})
 const chartOptions = ref({
   chart: {
     type: 'line',
@@ -14,6 +18,8 @@ const chartOptions = ref({
   legend: {
     show: false
   },
+  colors: [props.colorChart],
+
   grid: {
     show: false
   },
@@ -22,10 +28,20 @@ const chartOptions = ref({
       show: false
     }
   },
+  // xaxis: {
+  //   labels: {
+  //     show: false
+  //   },
+  //   axisBorder: {
+  //     show: false
+  //   },
+  //   axisTicks: {
+  //     show: false
+  //   }
+  // },
+
   xaxis: {
-    labels: {
-      show: false
-    },
+    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
     axisBorder: {
       show: false
     },
@@ -38,20 +54,15 @@ const chartOptions = ref({
 const series = ref([
   {
     name: 'series-1',
-    data: [30, 25, 60, 10, 5, 40, 70, 91]
+    data: [30, 25, 60, 91, 5]
   }
 ])
-
-const props = defineProps({
-  bgIcon: String,
-  options: [Object]
-})
 </script>
 
 <template>
-  <div class="card rounded-md p-3 flex justify-around w-full h-28">
-    <div class="flex items-center justify-between">
-      <div class="h-full mt-6 mr-6">
+  <div class="card rounded-md p-3 flex 2xl:flex-row flex-col">
+    <div class="flex mt-4">
+      <div class=" mr-6">
         <component
           v-if="props.options?.icon"
           :is="props.options?.icon"
@@ -60,12 +71,12 @@ const props = defineProps({
         />
       </div>
       <div>
-        <p class="text-sm mb-0.5 text-blue-light" v-text="props.options?.title"></p>
+        <p class="text-sm mb-1 text-blue-light" v-text="props.options?.title"></p>
         <p class="text-2xl font-medium" v-text="props.options?.count"></p>
       </div>
-      <div class="w-44">
-        <apexchart type="line" :options="chartOptions" :series="series"></apexchart>
-      </div>
+    </div>
+    <div class="xl:w-44 w-auto m-auto">
+      <apexchart type="line" :options="chartOptions" :series="series"></apexchart>
     </div>
   </div>
 </template>

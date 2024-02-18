@@ -2,8 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-@import 'nav','custom';
+@import 'nav', 'custom';
 
 body {
   font-family: 'Montserrat', sans-serif;
+}
+.layout {
+  grid-template-columns: repeat(4, 1fr);
+  @media (max-width: 1024px) {
+    grid-template-columns: 250px 1fr;
+  }
+  .expanded {
+    grid-area: 1 / 2 / 3 / 4;
+  
+  }
 }
