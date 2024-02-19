@@ -45,6 +45,10 @@ const giftCardOptions = [
   { title: 'Crear gift card', link: '/dashboard/gift-card/create' },
   { title: 'Ver gift cards', link: '/dashboard/gift-card/list' }
 ]
+
+const clientsOptions = [
+  { title: 'Ver clientes', link: '/dashboard/clients/list' }
+]
 </script>
 
 <template>
@@ -105,6 +109,14 @@ const giftCardOptions = [
     :icon="SwatchIcon"
       title="Gift cards"
       :options="giftCardOptions"
+      v-if="authStore.user?.role?.permissions.find((item: any) => item == 'GIFT-CARD-CREATE')"
+    />
+
+    <Accordion
+    :icon="SwatchIcon"
+      title="Clientes"
+      :options="clientsOptions"
+      v-if="authStore.user?.role?.permissions.find((item: any) => item == 'CLIENT-LIST')"
     />
   </div>
 </template>

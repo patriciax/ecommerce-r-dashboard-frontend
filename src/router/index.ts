@@ -22,6 +22,7 @@ import EditProductVue from '@/views/dashboard/products/EditProduct.vue'
 import CreateGiftCardVue from '@/views/dashboard/giftCards/CreateGiftCard.vue'
 import ListGiftCardVue from '@/views/dashboard/giftCards/ListGiftCard.vue'
 import EditGiftCardVue from '@/views/dashboard/giftCards/EditGiftCard.vue'
+import clientListVue from '@/views/dashboard/clients/clientList.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -160,6 +161,14 @@ const router = createRouter({
         path: '/dashboard/gift-card/:id',
         name: 'edit-gift-card',
         component: EditGiftCardVue,
+        meta: { requiresAuth: true },
+      },
+
+
+      {
+        path: '/dashboard/clients/list',
+        name: 'list-client',
+        component: clientListVue,
         meta: { requiresAuth: true },
       }
     ]
