@@ -45,7 +45,7 @@
 
         
         try{
-            
+            loading.value = true
             const data = {
                 "title": state.giftCardName,
                 "titleEnglish": state.giftCardNameEnglish,

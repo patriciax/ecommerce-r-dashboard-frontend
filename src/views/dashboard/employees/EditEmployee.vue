@@ -62,7 +62,7 @@
 
             loading.value = false
 
-            await router.push({name: 'list-employees'})
+            await router.push({name: 'list-employee'})
 
         }catch(error){
             console.log(error)

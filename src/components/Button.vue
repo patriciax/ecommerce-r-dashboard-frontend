@@ -31,6 +31,7 @@
 
  <template>
     <button
+        :disabled="props.loading"
         :type="props.buttonType"
         @click="emit('click')"
         :className="`px-6 py-4 rounded-md text-white ${props.color} ${props.size} text-center`"

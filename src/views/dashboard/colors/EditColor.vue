@@ -51,7 +51,7 @@
             const data = {
                 "title": state.colorName,
                 "titleEnglish": state.colorNameEnglish,
-                "hex": state.hex
+                "hexColor": state.hex
 
             }
 

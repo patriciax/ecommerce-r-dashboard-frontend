@@ -18,6 +18,10 @@
         return v$?.value.$errors?.find(item => item.$property === 'colorNameEnglish')?.$message || ''
     })
 
+    const hexError = computed(() => {
+        return v$?.value.$errors?.find(item => item.$property === 'hexColor')?.$message || ''
+    })
+
     const loading = ref(false)
     const state = reactive({
         colorName: '',
@@ -95,7 +99,7 @@
                 <form class="w-full" enctype="multipart/form-data" @submit.prevent="submitColor">
                     <TextField label="Titulo del color" type="text" placeholder="Ingrese el nombre del color" :error="`${nameError}`" v-model="state.colorName"/>
                     <TextField label="Titulo del color en ingles" type="text" placeholder="Ingrese el nombre del color en inglés" :error="`${nameErrorEnglish}`" v-model="state.colorNameEnglish"/>
-                    <TextField label="Seleccione el color" type="color" :error="`${nameError}`" v-model="state.hexColor"/>
+                    <TextField label="Seleccione el color" type="color" :error="`${hexError}`" v-model="state.hexColor"/>
 
                     <Button buttonType="submit" title="Crear color" color="bg-blue-500" :loading="loading"/>
                 </form>

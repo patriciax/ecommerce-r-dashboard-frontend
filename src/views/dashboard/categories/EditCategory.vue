@@ -77,6 +77,7 @@ import SelectField from '@/components/SelectField.vue';
 
                 if(imagefile.files.length == 0){
                     showNotification('Imágen es obligatoria', 'error')
+                    loading.value = false
                     return
                 }
 
