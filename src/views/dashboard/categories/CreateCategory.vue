@@ -49,14 +49,14 @@
     }
 
     const v$ = useVuelidate(rules, state)
-
-    const awaitTime = () => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(true);
-            }, 1000);
-        });
-    }
+    
+    // const awaitTime = () => {
+    //     return new Promise((resolve) => {
+    //         setTimeout(() => {
+    //             resolve(true);
+    //         }, 1000);
+    //     });
+    // }
 
     const submitCategory = async () =>{
 
@@ -66,32 +66,32 @@
         
         try{
 
-            var images64:any = []
-            let imagefile:any = document.querySelector('.main');
-            var mainImage64:any = null
+            // var images64:any = []
+            // let imagefile:any = document.querySelector('.main');
+            // var mainImage64:any = null
 
-            if(imagefile.files.length == 0){
-                showNotification('Imágen es obligatoria', 'error')
-                return
-            }
+            // if(imagefile.files.length == 0){
+            //     showNotification('Imágen es obligatoria', 'error')
+            //     return
+            // }
 
-            loading.value = true
+            // loading.value = true
 
-            const reader = new FileReader();
+            // const reader = new FileReader();
 
-            reader.onload = function() {
-                const base64String = reader.result;
-                mainImage64 = base64String
-            };
+            // reader.onload = function() {
+            //     const base64String = reader.result;
+            //     mainImage64 = base64String
+            // };
 
-            reader.readAsDataURL(imagefile.files[0]);
+            // reader.readAsDataURL(imagefile.files[0]);
 
-            while(mainImage64 == null){
-                await awaitTime()
-            }
+            // while(mainImage64 == null){
+            //     await awaitTime()
+            // }
             
             const data = {
-                "mainImage": mainImage64,
+                //"mainImage": mainImage64,
                 "title": state.categoryName,
                 "titleEnglish": state.categoryNameEnglish,
                 "categoryType": state.categoryType,
@@ -172,13 +172,13 @@
 
                     <SelectField label="Categoría padre" placeholder="seleccione" :options="allCategories" v-model="state.categoryParent" />
 
-                    <div class="flex w-full mb-3" v-if="showImageInputs">
+                    <!-- <div class="flex w-full mb-3" v-if="showImageInputs">
                         <div>
                             <p class="font-bold">Imágen principal</p>
                             <InputField class="w-full" ref="main" fieldId="main"/>
                         </div>
 
-                    </div>
+                    </div> -->
 
                     <Button buttonType="submit" title="Crear categoría" color="bg-blue-500" :loading="loading"/>
                 </form>

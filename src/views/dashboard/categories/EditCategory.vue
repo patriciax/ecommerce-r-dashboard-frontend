@@ -55,13 +55,13 @@ import SelectField from '@/components/SelectField.vue';
 
     const v$ = useVuelidate(rules, state)
 
-    const awaitTime = () => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(true);
-            }, 1000);
-        });
-    }
+    // const awaitTime = () => {
+    //     return new Promise((resolve) => {
+    //         setTimeout(() => {
+    //             resolve(true);
+    //         }, 1000);
+    //     });
+    // }
 
     const submitCategory = async () =>{
 
@@ -71,33 +71,33 @@ import SelectField from '@/components/SelectField.vue';
         loading.value = true
         try{
 
-            if(image.value == ''){
-                let imagefile:any = document.querySelector('.main');
-                var mainImage64:any = null
+            // if(image.value == ''){
+            //     let imagefile:any = document.querySelector('.main');
+            //     var mainImage64:any = null
 
-                if(imagefile.files.length == 0){
-                    showNotification('Imágen es obligatoria', 'error')
-                    loading.value = false
-                    return
-                }
+            //     if(imagefile.files.length == 0){
+            //         showNotification('Imágen es obligatoria', 'error')
+            //         loading.value = false
+            //         return
+            //     }
 
-                const reader = new FileReader();
+            //     const reader = new FileReader();
 
-                reader.onload = function() {
-                    const base64String = reader.result;
-                    mainImage64 = base64String
-                };
+            //     reader.onload = function() {
+            //         const base64String = reader.result;
+            //         mainImage64 = base64String
+            //     };
 
-                reader.readAsDataURL(imagefile.files[0]);
+            //     reader.readAsDataURL(imagefile.files[0]);
 
-                while(mainImage64 == null){
-                    await awaitTime()
-                }
-            }
+            //     while(mainImage64 == null){
+            //         await awaitTime()
+            //     }
+            // }
             
             const data = {
-                "oldImage": image.value,
-                "mainImage": mainImage64,
+                // "oldImage": image.value,
+                // "mainImage": mainImage64,
                 "title": state.categoryName,
                 "titleEnglish": state.categoryNameEnglish,
                 "categoryType": state.categoryType,
@@ -129,10 +129,10 @@ import SelectField from '@/components/SelectField.vue';
 
     }
 
-    const deleteImage = () => {
-        image.value = ''
-        showImageInputs.value = true
-    }
+    // const deleteImage = () => {
+    //     image.value = ''
+    //     showImageInputs.value = true
+    // }
     const getCategories = async () => {
         const result = await lastestCategories()
         lastestCategoriesList.value = result.data?.categories
@@ -172,7 +172,7 @@ import SelectField from '@/components/SelectField.vue';
 
                     <SelectField label="Categoría padre" placeholder="seleccione" :options="allCategories" v-model="state.categoryParent"/>
 
-                    <div class="flex items-center" v-if="image">
+                    <!-- <div class="flex items-center" v-if="image">
                         <img :src="image" alt="product" class="w-32 h-32"/>
                         <ButtonIcon @click="deleteImage" title="Limpiar formulario" color="bg-red-500" size="h-12">
                             <TrashIcon />
@@ -184,7 +184,7 @@ import SelectField from '@/components/SelectField.vue';
                             <InputField class="w-full" ref="main" fieldId="main"/>
                         </div>
 
-                    </div>
+                    </div> -->
 
                     <Button buttonType="submit" title="Actualizar categoría" color="bg-blue-500" :loading="loading"/>
                 </form>
