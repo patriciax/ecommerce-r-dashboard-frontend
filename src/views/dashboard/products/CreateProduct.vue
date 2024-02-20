@@ -255,10 +255,10 @@
 <template>
   <section>
     <div>
-      <h1 class="title">Create product</h1>
+      <h1 class="title">Crear producto</h1>
     </div>
-    <div class="flex gap-4">
-      <div class="card w-4/5">
+    <div class="flex flex-col xl:flex-row gap-4">
+      <div class="card xl:w-3/4 2xl:w-4/5">
         <form class="w-full" enctype="multipart/form-data" @submit.prevent="submitProduct">
           <section class="grid grid-cols-2 gap-10">
             <div>
@@ -287,17 +287,28 @@
                 :error="`${descriptionError}`"
                 v-model="state.description"
               />
-
-              <TextArea
-                v-if="showImageInputs"
-                label="Descripción del producto en inglés"
-                placeholder="Ingrese la descripción del producto en inglés"
-                :error="`${descriptionErrorEnglish}`"
-                v-model="state.descriptionEnglish"
-              />
+              <div class="flex w-full gap-4 ">
+                <MultipleSelectField
+                  v-if="showImageInputs"
+                  @changeValue="changeCategories"
+                  label="Categorías"
+                  placeholder="Seleccione uno o varias categorías"
+                  :options="categories"
+                  v-model="state.categories"
+                  :error="`${categoriesError}`"
+                />
+              </div>
             </div>
-
-            <section class="grid gap-4">
+            <section class="grid h-fit ">
+              <TextField
+                  class="w-full"
+                  :onlyNumber="true"
+                  label="Stock del producto"
+                  type="text"
+                  placeholder="Ingrese el stock del producto"
+                  :error="`${stockError}`"
+                  v-model="state.stock"
+                />
               <div class="flex w-full gap-4">
                 <TextField
                   class="w-full"
@@ -309,37 +320,27 @@
                   v-model="state.price"
                 />
 
+             
                 <TextField
-                  class="w-full"
-                  :onlyNumber="true"
-                  label="Precio de descuento"
-                  type="text"
-                  placeholder="Ingrese el precio de descuento"
-                  :error="`${priceDiscountError}`"
-                  v-model="state.priceDiscount"
-                />
+                class="w-full"
+                :onlyNumber="true"
+                label="Precio de descuento"
+                type="text"
+                placeholder="Ingrese el precio de descuento"
+                :error="`${priceDiscountError}`"
+                v-model="state.priceDiscount"
+              />
+              </div>
+              <TextArea
+                v-if="showImageInputs"
+                label="Descripción del producto en inglés"
+                placeholder="Ingrese la descripción del producto en inglés"
+                :error="`${descriptionErrorEnglish}`"
+                v-model="state.descriptionEnglish"
+              />
 
-                <TextField
-                  class="w-full"
-                  :onlyNumber="true"
-                  label="Stock del producto"
-                  type="text"
-                  placeholder="Ingrese el stock del producto"
-                  :error="`${stockError}`"
-                  v-model="state.stock"
-                />
-              </div>
               <div class="flex w-full gap-4">
-                <MultipleSelectField v-if="showImageInputs"
-                  @changeValue="changeCategories"
-                  label="Categorías"
-                  placeholder="Seleccione uno o varias categorías"
-                  :options="categories"
-                  v-model="state.categories"
-                  :error="`${categoriesError}`"
-                />
-              </div>
-              <div class="flex w-full gap-4">
+                
                 <MultipleSelectField v-if="showImageInputs"
                   @changeValue="changeColors"
                   label="Colores"
@@ -359,7 +360,7 @@
               </div>
             </section>
           </section>
-          <div class="flex w-full gap-4 mb-6" v-if="showImageInputs">
+          <div class="grid grid-cols-2 w-full gap-10 mb-6" v-if="showImageInputs">
             <div>
               <p class="font-bold">Imágen principal</p>
               <InputField class="w-full" ref="main" fieldId="main" />
@@ -373,15 +374,25 @@
               </div>
             </div>
           </div>
-          <Button
-            buttonType="submit"
-            title="Crear producto"
-            color="bg-blue-500"
-            :loading="loading"
-          />
+          <section class="text-end">
+            <Button
+              buttonType="submit"
+              title="Crear producto +"
+              color="bg-purple-400 hover:bg-purple-500"
+              :loading="loading"
+              
+            />
+          </section>
         </form>
       </div>
-      <div class="rounded-md bg-white shadow-lg w-1/5 p-4">
+      <div class="rounded-md bg-white shadow-lg card xl:w-1/4 2xl:w-1/5 p-4">
+        <div class="pb-2 flex items-center border-b mb-4">
+          <div class="w-1 mr-2 rounded-lg h-5 bg-blue-300"></div>
+          <p
+            class="font-semibold text-sm text-default-text"
+            v-text="'Últimos productos agregados'"
+          ></p>
+        </div>
         <div
           class="flex items-center justify-start"
           v-for="latestProduct in lastestProductsList"
@@ -389,8 +400,10 @@
         >
           <img :src="latestProduct?.mainImage" alt="product" class="w-16 h-16 rounded-full" />
           <div class="pl-5">
-            <p>{{ latestProduct.name }}</p>
-            <p>Precio: {{ latestProduct.price }}</p>
+            <p class="text-sm font-semibold mb-0.5 truncate w-36 text-default-text capitalize">
+              {{ latestProduct.name }}
+            </p>
+            <p class="text-xs font-medium">Precio: {{ latestProduct.price }}</p>
           </div>
         </div>
       </div>

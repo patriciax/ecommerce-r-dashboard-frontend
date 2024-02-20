@@ -1,108 +1,141 @@
 <script setup lang="ts">
-    
-    import { productDelete, productList } from '@/api/repositories/product.repository';
-    import { onMounted, ref } from 'vue';
-    import ButtonIcon from '@/components/ButtonIcon.vue';
-    import TrashIcon from '@/components/icons/TrashIcon.vue';
-    import EditIcon from '@/components/icons/EditIcon.vue';
-    import {showNotification} from '@/composables/useNotification';
-    import Spinner from '@/assets/icons/Spinner.vue';
-    import { useRouter } from 'vue-router'
-    import Pagination from '@/components/Pagination.vue';
+import { productDelete, productList } from '@/api/repositories/product.repository'
+import { onMounted, ref, computed } from 'vue'
+import ButtonIcon from '@/components/ButtonIcon.vue'
+import TrashIcon from '@/components/icons/TrashIcon.vue'
+import EditIcon from '@/components/icons/EditIcon.vue'
+import { showNotification } from '@/composables/useNotification'
+import Modal from '@/components/Modal.vue'
+import { useRouter } from 'vue-router'
+import Pagination from '@/components/Pagination.vue'
+import DataTable from '@/components/DataTable.vue'
 
-    const router = useRouter()
-    const products:any = ref([])
-    const limit = ref(10)
-    const actualPage = ref(1)
-    const totalPages = ref(1)
-    const loadingDelete = ref(false)
-    const loadingProducts = ref(false)
+const router = useRouter()
+const products: any = ref([])
+const limit = ref(10)
+const actualPage = ref(1)
+const totalPages = ref(1)
+const loadingDelete = ref(false)
+const loadingProducts = ref(false)
+const isOpenDeleteModal = ref(false)
+const  idToDelete =ref()
+const deleteProduct = async (id: string) => {
+  try {
+    loadingDelete.value = true
 
-    const deleteProduct = async(id:string) => {
-        try{
-
-            loadingDelete.value = true
-
-            const result = await productDelete(id)
-            if(result.status == 'success'){
-                showNotification('producto eliminado', 'success')
-            }
-            
-            await getProducts()
-            loadingDelete.value = false
-
-        }catch(error){
-            loadingDelete.value = false
-            showNotification('Error al eliminar la talla', 'error')
-        }
+    const result = await productDelete(id)
+    if (result.status == 'success') {
+      showNotification('producto eliminado', 'success')
     }
 
-    const goToEditProduct = async(id:string) => {
-        await router.push({name: 'edit-product', params: {id}})
-    }
+    await getProducts()
+    loadingDelete.value = false
+  } catch (error) {
+    loadingDelete.value = false
+    showNotification('Error al eliminar la talla', 'error')
+  }
+}
 
-    const getProducts = async (page = 1) => {
-        actualPage.value = page
-        loadingProducts.value = true
-        const response = await productList(limit.value, actualPage.value)
-        totalPages.value = response.totalPages
-        products.value = response.data?.products
-        loadingProducts.value = false
-    }
+const goToEditProduct = async (id: string) => {
+  await router.push({ name: 'edit-product', params: { id } })
+}
 
-    onMounted(async () => {
-        getProducts()
-    })
+const getProducts = async (page = 1) => {
+  actualPage.value = page
+  loadingProducts.value = true
+  const response = await productList(limit.value, actualPage.value)
+  totalPages.value = response.totalPages
+  products.value = response.data?.products
+  loadingProducts.value = false
+}
 
+const titlesTable = computed(() => [
+  {
+    width: 'w-4/12',
+    title: 'Nombre'
+  },
+
+  {
+    width: 'w-1/6',
+    title: 'Stock'
+  },
+  {
+    width: 'w-1/2',
+    title: 'imagen'
+  },
+  {
+    width: 'w-4/12',
+    title: ''
+  }
+])
+const openModalDelete = (_id: number) => {
+  idToDelete.value = _id
+  isOpenDeleteModal.value = true
+}
+
+
+onMounted(async () => {
+  getProducts()
+})
 </script>
 
 <template>
-   <section>
-        <div class="rounded-md bg-white shadow-lg w-full p-4">
-            <div class="flex items-center justify-start">
-                <table class="table-auto border-collapse border border-slate-500 w-full">
-                    <thead>
-                        <tr>
-                            <th class="border border-slate-500">Nombre</th>
-                            <th class="border border-slate-500">Imágen</th>
-                            <th class="border border-slate-500">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody v-if="loadingProducts">
-                        <tr>
-                            <td colspan="3">
-                                <div class="flex justify-center items-center">
-                                    <Spinner />
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tbody v-else>
-                            <tr v-if="!products.length">
-                                <td colspan="3">
-                                    <div class="flex justify-center items-center">
-                                        <p>No hay productos a mostrar</p>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr v-for="product in products" :key="product?._id">
-                                <td class="border border-slate-500 px-4">{{ product.name }}</td>
-                                <td class="border border-slate-500 px-4"><img :src="product?.mainImage" alt="product" class="w-12 h-12 rounded-sm"/></td>
-                                
-                                <td class="border border-slate-500 px-4">
-                                    <ButtonIcon color="bg-blue-500" size="p-2" @click="goToEditProduct(product?._id)">
-                                        <EditIcon/>
-                                    </ButtonIcon>
-                                    <ButtonIcon color="bg-red-500" size="p-2" :loading="loadingDelete" @click="deleteProduct(product?._id)">
-                                        <TrashIcon />
-                                    </ButtonIcon>
-                                </td>
-                            </tr>
-                        
-                    </tbody>
-                </table>
-            </div>
-            <Pagination @changePageEmit="(page:number) => getProducts(page)" :totalPages="totalPages" :actualPage="actualPage" />
-        </div>
+  <section>
+    <div>
+      <h1 class="title">Lista de productos</h1>
+    </div>
+    <DataTable :is-loading="loadingProducts" title="Productos" :noHaveData="products.length === 0" :headers="titlesTable">
+      <template #body>
+        <tr
+          v-for="product in products"
+          :key="product?._id"
+          class="border-b p-10 hover:bg-gray-50 text-default-text"
+        >
+          <td class="flex cursor-pointer items-center gap-2 p-3 capitalize">
+            {{ product.name }}
+          </td>
+          <td class="p-3">
+            {{ product.stock }}
+          </td>
+          <td class="p-3">
+            <img :src="product?.mainImage" alt="product" class="w-12 h-12 rounded-sm" />
+          </td>
+          <td class="p-3 flex gap-2">
+            <ButtonIcon color="bg-transparent hover:text-purple-500 text-blue-dark" size="p-0" @click="goToEditProduct(product?._id)">
+              <EditIcon />
+            </ButtonIcon>
+            <ButtonIcon
+              color="bg-transparent text-blue-dark hover:text-red-500"
+            size="p-2"
+              :loading="loadingDelete"
+              @click="openModalDelete"
+            >
+              <TrashIcon />
+            </ButtonIcon>
+          </td>
+        </tr>
+      </template>
+      <template #pagination>
+    <section class="mt-4">
+        <Pagination
+          @changePageEmit="(page: number) => getProducts(page)"
+          :totalPages="totalPages"
+          :actualPage="actualPage"
+        />
     </section>
+      </template>
+    </DataTable>
+  </section>
+
+  <Modal
+    v-if="isOpenDeleteModal"
+    :title="'¿Está seguro de que desea eliminar este producto?'"
+    size="xs"
+    withButton
+    :firstButtonText="'Si, eliminar'"
+    :secondaryButtonText="'Cancelar'"
+    @close="isOpenDeleteModal = false"
+    @secondButtonAction="isOpenDeleteModal = false"
+    @firtsButtonAction="deleteProduct(idToDelete)"
+  />
 </template>
