@@ -260,7 +260,7 @@
     <div class="flex flex-col xl:flex-row gap-4">
       <div class="card xl:w-3/4 2xl:w-4/5">
         <form class="w-full" enctype="multipart/form-data" @submit.prevent="submitProduct">
-          <section class="grid grid-cols-2 gap-10">
+          <section class="grid lg:grid-cols-2 gap-10">
             <div>
               <TextField
                 class="w-full pr-3"
@@ -339,7 +339,7 @@
                 v-model="state.descriptionEnglish"
               />
 
-              <div class="flex w-full gap-4">
+              <div class="flex flex-col xl:flex-row w-full gap-4">
                 
                 <MultipleSelectField v-if="showImageInputs"
                   @changeValue="changeColors"
@@ -360,14 +360,14 @@
               </div>
             </section>
           </section>
-          <div class="grid grid-cols-2 w-full gap-10 mb-6" v-if="showImageInputs">
+          <div class="grid xl:grid-cols-2 w-full gap-10 mb-6" v-if="showImageInputs">
             <div>
               <p class="font-bold">Imágen principal</p>
               <InputField class="w-full" ref="main" fieldId="main" />
             </div>
             <div>
               <p class="font-bold">Imágenes secundarias</p>
-              <div class="flex">
+              <div class="flex xl:flex-row flex-col gap-2">
                 <InputField class="w-full" ref="main" fieldId="secondary" />
                 <InputField class="w-full" ref="main" fieldId="secondary" />
                 <InputField class="w-full" ref="main" fieldId="secondary" />

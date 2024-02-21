@@ -39,7 +39,7 @@
 </script>
 
 <template>
-    <div class="py-2">
+    <div class="">
       <p class="text-sm font-medium mb-0.5 text-default-text">{{ props.label }}</p>
       <input
         :disabled="props.disabled"
