@@ -23,6 +23,8 @@ import CreateGiftCardVue from '@/views/dashboard/giftCards/CreateGiftCard.vue'
 import ListGiftCardVue from '@/views/dashboard/giftCards/ListGiftCard.vue'
 import EditGiftCardVue from '@/views/dashboard/giftCards/EditGiftCard.vue'
 import clientListVue from '@/views/dashboard/clients/clientList.vue'
+import createNewsLetterVue from '@/views/dashboard/newsletters/createNewsLetter.vue'
+import listNewsletterVue from '@/views/dashboard/newsletters/listNewsletter.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -170,7 +172,22 @@ const router = createRouter({
         name: 'list-client',
         component: clientListVue,
         meta: { requiresAuth: true },
+      },
+
+
+      {
+        path: '/dashboard/newsletters/create',
+        name: 'create-newsletter',
+        component: createNewsLetterVue,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/dashboard/newsletters/list',
+        name: 'list-newsletter',
+        component: listNewsletterVue,
+        meta: { requiresAuth: true },
       }
+
     ]
    },
     {
