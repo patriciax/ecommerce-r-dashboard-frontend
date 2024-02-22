@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import Spinner from '@/assets/icons/Spinner.vue'
 import { useRouter } from 'vue-router'
 import { listNewsletters } from '@/api/repositories/newsletter.repository'
 import Pagination from '@/components/Pagination.vue'
+import DataTable from '@/components/DataTable.vue'
 
 const router = useRouter()
 const newsletters: any = ref([])
@@ -21,6 +22,25 @@ const getNewsletters = async (page = 1) => {
   totalPages.value = response.totalPages
 }
 
+const titlesTable = computed(() => [
+  {
+    width: 'w-4/12',
+    title: 'Nombre'
+  },
+
+  {
+    width: 'w-1/6',
+    title: ''
+  },
+  {
+    width: 'w-1/2',
+    title: ''
+  },
+  {
+    width: 'w-4/12',
+    title: ''
+  }
+])
 onMounted(async () => {
   getNewsletters()
 })
@@ -28,42 +48,38 @@ onMounted(async () => {
 
 <template>
   <section>
-    <div class="rounded-md bg-white shadow-lg w-full p-4">
-      <div class="flex items-center justify-start">
-        <table class="table-auto border-collapse border border-slate-500 w-full">
-          <thead>
-            <tr>
-              <th class="border border-slate-500">Titulo</th>
-            </tr>
-          </thead>
-          <tbody v-if="loadingNewsletters">
-            <tr>
-              <td colspan="3">
-                <div class="flex justify-center items-center">
-                  <Spinner />
-                </div>
-              </td>
-            </tr>
-          </tbody>
-          <tbody v-else>
-            <tr v-if="!newsletters.length">
-              <td colspan="3">
-                <div class="flex justify-center items-center">
-                  <p>No hay newsletters a mostrar</p>
-                </div>
-              </td>
-            </tr>
-            <tr v-for="newsletter in newsletters" :key="newsletter?._id">
-              <td class="border border-slate-500 px-4">{{ newsletter.title }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <Pagination
-        @changePageEmit="(page: number) => getNewsletters(page)"
-        :totalPages="totalPages"
-        :actualPage="actualPage"
-      />
+    <div>
+      <h1 class="title">Lista dE Newsletter</h1>
     </div>
+    <DataTable
+      :is-loading="loadingNewsletters"
+      title="Newsletter"
+      :noHaveData="newsletters.length === 0"
+      :headers="titlesTable"
+    >
+      <template #body>
+        <tr
+          v-for="newsletter in newsletters"
+          :key="newsletter?._id"
+          class="border-b p-10 hover:bg-gray-50 text-default-text"
+        >
+          <td class="flex cursor-pointer items-center gap-2 p-3 capitalize">
+            {{ newsletter.title }}
+          </td>
+          <td class="p-3"></td>
+          <td class="p-3"></td>
+          <td class="p-3 flex gap-2"></td>
+        </tr>
+      </template>
+      <template #pagination>
+        <section class="mt-4">
+          <Pagination
+            @changePageEmit="(page: number) => getNewsletters(page)"
+            :totalPages="totalPages"
+            :actualPage="actualPage"
+          />
+        </section>
+      </template>
+    </DataTable>
   </section>
 </template>
