@@ -23,7 +23,7 @@ const nameErrorEnglish = computed(() => {
 })
 
 const categoryTypeError = computed(() => {
-  return v$?.value.$errors?.find((item) => item.$property === 'categoryType')?.$message || ''
+  return v$?.value.$errors?.find((item) => item.$property === 'categoryType')?.$message ?? ''
 })
 
 const showImageInputs = ref(true)
@@ -179,7 +179,7 @@ onMounted(async () => {
               placeholder="seleccione"
               :options="optionsType"
               v-model="state.categoryType"
-              :error="categoryTypeError"
+              :error="categoryTypeError as string"
             />
 
             <SelectField

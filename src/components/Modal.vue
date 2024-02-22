@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, type HTMLAttributes, type VNodeProps, type FunctionalComponent } from 'vue'
 import {
   XCircleIcon,
   ExclamationTriangleIcon,
@@ -12,6 +12,10 @@ const props = defineProps({
   modalType: {
     type: String,
     default: 'primary'
+  },
+  isFull: {
+    type: Boolean,
+    default: false
   },
   isLoading: {
     default: false
@@ -69,12 +73,12 @@ const clickOutside = () => {
 }
 
 const iconAlert = computed(() => {
-  const icon = {
+
+  const icon: { [key: string]: FunctionalComponent<HTMLAttributes & VNodeProps, {}, any, {}> } = {
     error: XCircleIcon,
     success: CheckCircleIcon,
     warning: ExclamationTriangleIcon
   }
-
   return icon[props.modalType]
 })
 
@@ -89,7 +93,11 @@ const sizeModal = {
 }
 
 const classModal = computed(() => {
-  const _styles = [sizeModal[props.size]]
+  const sizeModal: { [key: string]: string } = {
+    medium: ''
+  };
+
+  const _styles = [sizeModal[props.size]];
   _styles.push(props.isFull ? 'w-full' : props.size)
   return _styles.join(' ')
 })

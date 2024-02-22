@@ -185,7 +185,7 @@ onMounted(async () => {
             placeholder="seleccione"
             :options="optionsType"
             v-model="state.categoryType"
-            :error="categoryTypeError"
+            :error="categoryTypeError as string"
           />
 
           <SelectField

@@ -77,7 +77,7 @@ onMounted(async () => {
       <template #pagination>
         <section class="mt-4">
           <Pagination
-            @changePageEmit="(page: number) => getClientss(page)"
+            @changePageEmit="(page: number) => getClients(page)"
             :totalPages="totalPages"
             :actualPage="actualPage"
           />
