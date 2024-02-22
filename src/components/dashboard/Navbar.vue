@@ -1,6 +1,22 @@
 <script setup lang="ts">
 import UserLogged from './UserLogged.vue'
 import { Bars3BottomLeftIcon } from '@heroicons/vue/24/outline'
+import { useAuthStore } from '@/stores/authStore'
+
+const authStore = useAuthStore()
+
+const roles = [
+  {
+    name:"ADMIN",
+    text: "Administrador"
+  },
+  {
+    name:"EMPLOYEE",
+    text: "Empleado"
+  },
+  
+]
+
 </script>
 
 <template>
@@ -8,6 +24,6 @@ import { Bars3BottomLeftIcon } from '@heroicons/vue/24/outline'
     <button @click="$emit('isOpen')" class="">
       <Bars3BottomLeftIcon class="w-6 ml-3 text-default-text" />
     </button>
-    <UserLogged name="Willian Rodriguez" role="Administrador" class="cursor-pointer" />
+    <UserLogged :name="authStore?.user?.name" :role="roles.find(role => role.name === authStore?.user?.role?.name)?.text" class="cursor-pointer" />
   </div>
 </template>

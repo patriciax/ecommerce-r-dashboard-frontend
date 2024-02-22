@@ -99,6 +99,7 @@ const newsletterOptions = [
     />
 
     <p
+      v-if="authStore.user?.role?.name == 'ADMIN'"
       v-text="'GENERAL'"
       class="text-[10px] text-secondary uppercase tracking-wide font-light my-4"
     />

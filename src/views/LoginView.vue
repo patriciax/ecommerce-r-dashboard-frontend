@@ -52,7 +52,7 @@ const signIn = async() => {
       return
     }
 
-    router.push({name: 'dashboard'})
+    router.push({name: 'home'})
     return
   } 
   
