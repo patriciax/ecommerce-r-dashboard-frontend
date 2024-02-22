@@ -19,8 +19,8 @@
 </script>
 
 <template>
-    <div class="py-3">
-      <p>{{ props.label }}</p>
+    <div class="">
+      <p class="text-sm font-medium mb-0.5 text-default-text">{{ props.label }}</p>
       <QuillEditor theme="snow" v-model:content="model" content-type="html"/>
       <p class="text-red-300" v-if="props.error">{{ props.error }}</p>
     </div>

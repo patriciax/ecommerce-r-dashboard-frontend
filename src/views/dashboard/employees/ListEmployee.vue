@@ -1,105 +1,149 @@
 <script setup lang="ts">
-    
-import { onMounted, ref } from 'vue';
-import ButtonIcon from '@/components/ButtonIcon.vue';
-import TrashIcon from '@/components/icons/TrashIcon.vue';
-import EditIcon from '@/components/icons/EditIcon.vue';
-import {showNotification} from '@/composables/useNotification';
-import Spinner from '@/assets/icons/Spinner.vue';
+import { onMounted, ref, computed } from 'vue'
+import ButtonIcon from '@/components/ButtonIcon.vue'
+import TrashIcon from '@/components/icons/TrashIcon.vue'
+import EditIcon from '@/components/icons/EditIcon.vue'
+import { showNotification } from '@/composables/useNotification'
+import Spinner from '@/assets/icons/Spinner.vue'
 import { useRouter } from 'vue-router'
-import { employeeList, employeeDelete } from '@/api/repositories/user.repository';
-import Pagination from '@/components/Pagination.vue';
+import { employeeList, employeeDelete } from '@/api/repositories/user.repository'
+import Pagination from '@/components/Pagination.vue'
+import DataTable from '@/components/DataTable.vue'
+import Modal from '@/components/Modal.vue'
 
 const router = useRouter()
-    const employees:any = ref([])
-    const limit = ref(10)
-    const actualPage = ref(1)
-    const loadingDelete = ref(false)
-    const loadingEmployees = ref(false)
-    const totalPages = ref(1)
+const employees: any = ref([])
+const limit = ref(10)
+const actualPage = ref(1)
+const loadingDelete = ref(false)
+const loadingEmployees = ref(false)
+const totalPages = ref(1)
+const isOpenDeleteModal = ref(false)
+const idToDelete = ref()
 
-    const deleteEmployee = async(id:string) => {
-        try{
+const deleteEmployee = async (id: string) => {
+  try {
+    loadingDelete.value = true
 
-            loadingDelete.value = true
-
-            const result = await employeeDelete(id)
-            if(result.status == 'success'){
-                showNotification('Empleado eliminado', 'success')
-            }
-            
-            await getEmployees()
-            loadingDelete.value = false
-
-        }catch(error){
-            loadingDelete.value = false
-            showNotification('Error al eliminar la categoría', 'error')
-        }
+    const result = await employeeDelete(id)
+    if (result.status == 'success') {
+      showNotification('Empleado eliminado', 'success')
     }
+    isOpenDeleteModal.value = false
 
-    const goToEditEmployee = async(id:string) => {
-        await router.push({name: 'edit-employee', params: {id}})
-    }
+    await getEmployees()
+    loadingDelete.value = false
+  } catch (error) {
+    loadingDelete.value = false
+    showNotification('Error al eliminar la categoría', 'error')
+  }
+}
 
-    const getEmployees = async (page = 1) => {
-        actualPage.value = page
-        loadingEmployees.value = true
-        const response = await employeeList(limit.value, actualPage.value)
-        employees.value = response.data?.users
-        loadingEmployees.value = false
-        totalPages.value = response.totalPages
-    }
+const goToEditEmployee = async (id: string) => {
+  await router.push({ name: 'edit-employee', params: { id } })
+}
 
-    onMounted(async () => {
-        getEmployees()
-    })
+const getEmployees = async (page = 1) => {
+  actualPage.value = page
+  loadingEmployees.value = true
+  const response = await employeeList(limit.value, actualPage.value)
+  employees.value = response.data?.users
+  loadingEmployees.value = false
+  totalPages.value = response.totalPages
+}
 
+const titlesTable = computed(() => [
+  {
+    width: 'w-4/12',
+    title: 'Nombre'
+  },
+
+  {
+    width: 'w-1/6',
+    title: ''
+  },
+  {
+    width: 'w-1/2',
+    title: ''
+  },
+  {
+    width: 'w-4/12',
+    title: ''
+  }
+])
+const openModalDelete = (_id: number) => {
+  idToDelete.value = _id
+  isOpenDeleteModal.value = true
+}
+
+onMounted(async () => {
+  getEmployees()
+})
 </script>
 
 <template>
-   <section>
-        <div class="rounded-md bg-white shadow-lg w-full p-4">
-            <div class="flex items-center justify-start">
-                <table class="table-auto border-collapse border border-slate-500 w-full">
-                    <thead>
-                        <tr>
-                            <th class="border border-slate-500">Nombre</th>
-                            <th class="border border-slate-500">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody v-if="loadingEmployees">
-                        <tr>
-                            <td colspan="3">
-                                <div class="flex justify-center items-center">
-                                    <Spinner />
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tbody v-else>
-                            <tr v-if="!employees.length">
-                                <td colspan="3">
-                                    <div class="flex justify-center items-center">
-                                        <p>No hay empleados a mostrar</p>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr v-for="employee in employees" :key="employee?._id">
-                                <td class="border border-slate-500 px-4">{{ employee.name }}</td>
-                                <td class="border border-slate-500 px-4">
-                                    <ButtonIcon color="bg-blue-500" size="p-2" @click="goToEditEmployee(employee?._id)">
-                                        <EditIcon/>
-                                    </ButtonIcon>
-                                    <ButtonIcon color="bg-red-500" size="p-2" :loading="loadingDelete" @click="deleteEmployee(employee?._id)">
-                                        <TrashIcon />
-                                    </ButtonIcon>
-                                </td>
-                            </tr>
-                        
-                    </tbody>
-                </table>
-            </div>
-            <Pagination @changePageEmit="(page:number) => getEmployees(page)" :totalPages="totalPages" :actualPage="actualPage" />
-        </div>
-    </section>
+ 
+  <section>
+    <div>
+      <h1 class="title">Lista de Empleado</h1>
+    </div>
+    <DataTable
+      :is-loading="loadingEmployees"
+      title="Empleados"
+      :noHaveData="employees.length === 0"
+      :headers="titlesTable"
+    >
+      <template #body>
+        <tr
+          v-for="employee in employees"
+          :key="employee?._id"
+          class="border-b p-10 hover:bg-gray-50 text-default-text"
+        >
+          <td class="flex cursor-pointer items-center gap-2 p-3 capitalize">
+            {{ employee.name }}
+          </td>
+          <td class="p-3"></td>
+          <td class="p-3"></td>
+          <td class="p-3 flex gap-2">
+            <ButtonIcon
+              color="bg-transparent hover:text-purple-500 text-blue-dark"
+              size="p-0"
+              @click="goToEditEmployee(employee?._id)"
+            >
+              <EditIcon />
+            </ButtonIcon>
+            <ButtonIcon
+              color="bg-transparent text-blue-dark hover:text-red-500"
+              size="p-2"
+              :loading="loadingDelete"
+              @click="openModalDelete(employee?._id)"
+            >
+              <TrashIcon />
+            </ButtonIcon>
+          </td>
+        </tr>
+      </template>
+      <template #pagination>
+        <section class="mt-4">
+          <Pagination
+            @changePageEmit="(page: number) => getEmployees(page)"
+            :totalPages="totalPages"
+            :actualPage="actualPage"
+          />
+        </section>
+      </template>
+    </DataTable>
+  </section>
+
+  <Modal
+    v-if="isOpenDeleteModal"
+    :title="'¿Está seguro de que desea eliminar?'"
+    size="xs"
+    withButton
+    :firstButtonText="'Si, eliminar'"
+    :secondaryButtonText="'Cancelar'"
+    @close="isOpenDeleteModal = false"
+    @secondButtonAction="isOpenDeleteModal = false"
+    @firtsButtonAction="deleteEmployee(idToDelete)"
+  />
 </template>

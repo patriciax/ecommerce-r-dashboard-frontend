@@ -4,3 +4,9 @@
 .title {
   @apply font-semibold mb-6 text-lg;
 }
+.card-principal{
+  @apply card xl:w-3/4 2xl:w-4/5
+}
+.card-secondary{
+  @apply rounded-md bg-white shadow-lg card h-fit xl:w-1/4 2xl:w-1/5 p-4;
+}

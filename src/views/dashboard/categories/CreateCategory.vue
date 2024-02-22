@@ -155,25 +155,24 @@ onMounted(async () => {
     <div>
       <h1 class="title">Crear Categoria</h1>
     </div>
-    <div class="flex gap-4">
-      <div class="rounded-md bg-white shadow-lg p-4 w-4/5">
+    <div class="flex flex-col xl:flex-row gap-4">
+      <div class="card h-fit xl:w-3/4 2xl:w-4/5">
         <form class="w-full" enctype="multipart/form-data" @submit.prevent="submitCategory">
-          
-          <div class="grid grid-cols-2 gap-x-10 gap-y-4">
+          <div class="grid lg:grid-cols-2 gap-x-10 gap-y-4">
             <TextField
-            label="Titulo de la categoría"
-            type="text"
-            placeholder="Ingrese el nombre de la categoría"
-            :error="`${nameError}`"
-            v-model="state.categoryName"
-          />
-          <TextField
-            label="Titulo de la categoría en inglés"
-            type="text"
-            placeholder="Ingrese el nombre de la categoría en inglés"
-            :error="`${nameErrorEnglish}`"
-            v-model="state.categoryNameEnglish"
-          />
+              label="Titulo de la categoría"
+              type="text"
+              placeholder="Ingrese el nombre de la categoría"
+              :error="`${nameError}`"
+              v-model="state.categoryName"
+            />
+            <TextField
+              label="Titulo de la categoría en inglés"
+              type="text"
+              placeholder="Ingrese el nombre de la categoría en inglés"
+              :error="`${nameErrorEnglish}`"
+              v-model="state.categoryNameEnglish"
+            />
 
             <SelectField
               label="Tipo de categoría"
@@ -197,26 +196,33 @@ onMounted(async () => {
                         </div>
 
                     </div> -->
-
-          <Button
-            buttonType="submit"
-            title="Crear categoría"
-            color="bg-blue-500"
-            :loading="loading"
-          />
+          <section class="text-end mt-20">
+            <Button buttonType="submit" title="Crear categoría +" :loading="loading" />
+          </section>
         </form>
       </div>
-      <div class="rounded-md bg-white shadow-lg w-1/5 p-4">
+      <div class="rounded-md bg-white shadow-lg card h-fit xl:w-1/4 2xl:w-1/5 p-44">
+        <div class="pb-2 flex items-center border-b mb-4">
+          <div class="w-1 mr-2 rounded-lg h-5 bg-green-300"></div>
+          <p class="font-semibold text-sm text-default-text" v-text="'Últimos agregados'"></p>
+        </div>
         <div
-          class="flex items-center justify-start"
+          class="flex items-center justify-start bg-gray-100 px-4 pt-2 rounded-lg pb-2 mb-3"
           v-for="category in lastestCategoriesList"
           :key="category.id"
         >
-          <img :src="category?.image" alt="product" class="w-16 h-16 rounded-full" />
-          <div class="pl-5">
-            <p>{{ category.name }}</p>
+          <!-- <img :src="category?.image" alt="product" class="w-14 h-16 rounded-full" /> -->
+          <div class="">
+            <p class="text-sm font-semibold mb-0.5 truncate w-42 text-default-text capitalize">
+              {{ category.name }}
+            </p>
           </div>
         </div>
+        <section class="flex justify-center my-2 mt-4 pt-4 border-t">
+          <RouterLink to="/dashboard/category/list">
+            <Button buttonType="submit" title="Ver todas las categorías" :loading="loading" />
+          </RouterLink>
+        </section>
       </div>
     </div>
   </section>

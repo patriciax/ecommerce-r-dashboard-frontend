@@ -299,9 +299,8 @@ onMounted(async () => {
           enctype="multipart/form-data"
           @submit.prevent="submitProduct"
         >
-          <section class=" col-span-2 lg:col-span-1">
+          <section class="col-span-2 lg:col-span-1 gap-4 grid">
             <TextField
-              class="mb-4"
               label="Titulo del producto"
               type="text"
               placeholder="Ingrese el nombre del producto"
@@ -325,9 +324,9 @@ onMounted(async () => {
             />
           </section>
 
-          <div class="w-full  col-span-2 lg:col-span-1 flex flex-col">
+          <div class="w-full gap-4 col-span-2 lg:col-span-1 grid">
             <TextField
-              class="w-full mb-4"
+              class="w-full "
               :onlyNumber="true"
               label="Stock del producto"
               type="text"
@@ -366,7 +365,7 @@ onMounted(async () => {
             />
           </div>
 
-          <div class="flex w-full gap-4 -mt-4  col-span-2 lg:col-span-1">
+          <div class="grid w-full gap-4  col-span-2 lg:col-span-1">
             <MultipleSelectField
               v-if="categories"
               @changeValue="changeCategories"
@@ -378,7 +377,7 @@ onMounted(async () => {
               :error="`${categoriesError}`"
             />
           </div>
-          <div class="flex w-full gap-4  col-span-2 lg:col-span-1">
+          <div class="flex w-full gap-4 col-span-2 lg:col-span-1">
             <MultipleSelectField
               v-if="colors"
               @changeValue="changeColors"
@@ -407,13 +406,22 @@ onMounted(async () => {
               Imagenes del producto:
             </p>
 
-            <div class="flex mb-4 lg:mb-0   col-span-2 lg:col-span-1 w-full gap-4" v-if="showImageInputs">
+            <div
+              class="flex mb-4 lg:mb-0 col-span-2 lg:col-span-1 w-full gap-4"
+              v-if="showImageInputs"
+            >
               <div class="w-full">
                 <p class="font-bold mb-2">Imágen principal</p>
                 <div class="flex flex-col items-center w-full relative group">
-                    <div :class="showDefaultImage ?'absolute overflow-hidden top-1/4 lg:opacity-30 group-hover:opacity-100 h-24 rounded-lg borde- flex items-center justify-center':'w-full'">
+                  <div
+                    :class="
+                      showDefaultImage
+                        ? 'absolute overflow-hidden top-1/4 lg:opacity-30 group-hover:opacity-100 h-24 rounded-lg borde- flex items-center justify-center'
+                        : 'w-full'
+                    "
+                  >
                     <InputField
-                    title="Cambiar imagen"
+                      title="Cambiar imagen"
                       @changedImage="showDefaultImage = false"
                       class="w-full"
                       ref="main"
@@ -426,14 +434,13 @@ onMounted(async () => {
                     alt="product"
                     class="w-52 object-coverrounded-lg h-52"
                   />
-               
                 </div>
               </div>
             </div>
             <div v-if="showImageInputs" class="col-span-2 lg:col-span-1">
               <p class="font-bold mb-2">Imágenes secundarias</p>
-              <div class="flex lg:flex-row flex-col items-center gap-4">
-                <div class="flex flex-col border rounded-lg ">
+              <div class="flex xl:flex-row flex-col items-center gap-4">
+                <div class="flex flex-col border rounded-lg">
                   <InputField
                     v-if="!defaultImages[0]"
                     class="w-full"
@@ -491,17 +498,11 @@ onMounted(async () => {
             </div>
           </section>
           <section class="text-end col-span-2">
-
-          <Button
-            buttonType="submit"
-            title="Actualizar producto"
-            color="bg-purple-400 hover:bg-purple-500"
-            :loading="loading"
-          />
+            <Button buttonType="submit" title="Actualizar producto" :loading="loading" />
           </section>
         </form>
       </div>
-      <div class="rounded-md bg-white shadow-lg card lg:w-full xl:w-1/4 2xl:w-1/5 p-4">
+      <div class="card-secondary">
         <div class="pb-2 flex items-center border-b mb-4">
           <div class="w-1 mr-2 rounded-lg h-5 bg-blue-300"></div>
           <p
@@ -510,18 +511,23 @@ onMounted(async () => {
           ></p>
         </div>
         <div
-          class="flex items-center justify-start bg-slate-100 mb-3 p-1.5 rounded-lg"
+          class="flex items-center justify-start bg-gray-100 px-4 pt-2 rounded-lg pb-2 mb-3"
           v-for="latestProduct in lastestProductsList"
           :key="latestProduct.id"
         >
-          <img :src="latestProduct?.mainImage" alt="product" class="w-16 h-16 rounded-full" />
-          <div class="pl-5">
+          <img :src="latestProduct?.mainImage" alt="product" class="w-16 mr-2 h-16 rounded-full" />
+          <div class="w-full flex justify-between">
             <p class="text-sm font-semibold mb-0.5 truncate w-36 text-default-text capitalize">
               {{ latestProduct.name }}
             </p>
-            <p class="text-xs font-medium">Precio: {{ latestProduct.price }}</p>
+            <span class="font-semibold">${{ latestProduct.price }}</span>
           </div>
         </div>
+        <section class="flex justify-center my-2 mt-4 pt-4 border-t">
+          <RouterLink to="/dashboard/product/list">
+            <Button buttonType="submit" title="Ver todos los productos" :loading="loading" />
+          </RouterLink>
+        </section>
       </div>
     </div>
   </section>

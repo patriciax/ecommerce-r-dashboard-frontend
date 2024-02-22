@@ -1,105 +1,148 @@
 <script setup lang="ts">
-    
-import { onMounted, ref } from 'vue';
-import ButtonIcon from '@/components/ButtonIcon.vue';
-import TrashIcon from '@/components/icons/TrashIcon.vue';
-import EditIcon from '@/components/icons/EditIcon.vue';
-import {showNotification} from '@/composables/useNotification';
-import Spinner from '@/assets/icons/Spinner.vue';
+import { onMounted, ref, computed } from 'vue'
+import ButtonIcon from '@/components/ButtonIcon.vue'
+import TrashIcon from '@/components/icons/TrashIcon.vue'
+import EditIcon from '@/components/icons/EditIcon.vue'
+import { showNotification } from '@/composables/useNotification'
 import { useRouter } from 'vue-router'
-import { sizeDelete, sizeList } from '@/api/repositories/size.repository';
-import Pagination from '@/components/Pagination.vue';
+import { sizeDelete, sizeList } from '@/api/repositories/size.repository'
+import Pagination from '@/components/Pagination.vue'
+import DataTable from '@/components/DataTable.vue'
+import Modal from '@/components/Modal.vue'
 
 const router = useRouter()
-    const sizes:any = ref([])
-    const limit = ref(10)
-    const actualPage = ref(1)
-    const totalPages = ref(1)
-    const loadingDelete = ref(false)
-    const loadingSizes = ref(false)
+const sizes: any = ref([])
+const limit = ref(10)
+const actualPage = ref(1)
+const totalPages = ref(1)
+const loadingDelete = ref(false)
+const loadingSizes = ref(false)
+const isOpenDeleteModal = ref(false)
+const idToDelete = ref()
 
-    const deleteSize = async(id:string) => {
-        try{
+const deleteSize = async (id: string) => {
+  try {
+    loadingDelete.value = true
 
-            loadingDelete.value = true
-
-            const result = await sizeDelete(id)
-            if(result.status == 'success'){
-                showNotification('Talla eliminada', 'success')
-            }
-            
-            await getSizes()
-            loadingDelete.value = false
-
-        }catch(error){
-            loadingDelete.value = false
-            showNotification('Error al eliminar la talla', 'error')
-        }
+    const result = await sizeDelete(id)
+    if (result.status == 'success') {
+      showNotification('Talla eliminada', 'success')
     }
+    isOpenDeleteModal.value = false
 
-    const goToEditSize = async(id:string) => {
-        await router.push({name: 'edit-size', params: {id}})
-    }
+    await getSizes()
+    loadingDelete.value = false
+  } catch (error) {
+    loadingDelete.value = false
+    showNotification('Error al eliminar la talla', 'error')
+  }
+}
 
-    const getSizes = async (page = 1) => {
-        actualPage.value = page
-        loadingSizes.value = true
-        const response = await sizeList(limit.value, page)
-        totalPages.value = response.totalPages
-        sizes.value = response.data?.sizes
-        loadingSizes.value = false
-    }
+const goToEditSize = async (id: string) => {
+  await router.push({ name: 'edit-size', params: { id } })
+}
 
-    onMounted(async () => {
-        getSizes()
-    })
+const getSizes = async (page = 1) => {
+  actualPage.value = page
+  loadingSizes.value = true
+  const response = await sizeList(limit.value, page)
+  totalPages.value = response.totalPages
+  sizes.value = response.data?.sizes
+  loadingSizes.value = false
+}
+const titlesTable = computed(() => [
+  {
+    width: 'w-4/12',
+    title: 'Nombre'
+  },
 
+  {
+    width: 'w-1/6',
+    title: 'Stock'
+  },
+  {
+    width: 'w-1/2',
+    title: ''
+  },
+  {
+    width: 'w-4/12',
+    title: ''
+  }
+])
+const openModalDelete = (_id: number) => {
+  idToDelete.value = _id
+  isOpenDeleteModal.value = true
+}
+
+onMounted(async () => {
+  getSizes()
+})
 </script>
 
 <template>
-   <section>
-        <div class="rounded-md bg-white shadow-lg w-full p-4">
-            <div class="flex items-center justify-start">
-                <table class="table-auto border-collapse border border-slate-500 w-full">
-                    <thead>
-                        <tr>
-                            <th class="border border-slate-500">Nombre</th>
-                            <th class="border border-slate-500">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody v-if="loadingSizes">
-                        <tr>
-                            <td colspan="3">
-                                <div class="flex justify-center items-center">
-                                    <Spinner />
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tbody v-else>
-                            <tr v-if="!sizes.length">
-                                <td colspan="3">
-                                    <div class="flex justify-center items-center">
-                                        <p>No hay tallas a mostrar</p>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr v-for="size in sizes" :key="size?._id">
-                                <td class="border border-slate-500 px-4">{{ size.name }}</td>
-                                <td class="border border-slate-500 px-4">
-                                    <ButtonIcon color="bg-blue-500" size="p-2" @click="goToEditSize(size?._id)">
-                                        <EditIcon/>
-                                    </ButtonIcon>
-                                    <ButtonIcon color="bg-red-500" size="p-2" :loading="loadingDelete" @click="deleteSize(size?._id)">
-                                        <TrashIcon />
-                                    </ButtonIcon>
-                                </td>
-                            </tr>
-                        
-                    </tbody>
-                </table>
-            </div>
-            <Pagination @changePageEmit="(page:number) => getSizes(page)" :totalPages="totalPages" :actualPage="actualPage" />
-        </div>
-    </section>
+  <section>
+    <div>
+      <h1 class="title">Lista de tallas</h1>
+    </div>
+    <DataTable
+      :is-loading="loadingSizes"
+      title="Tallas"
+      :noHaveData="sizes.length === 0"
+      :headers="titlesTable"
+    >
+      <template #body>
+        <tr
+        v-for="size in sizes" :key="size?._id"
+          class="border-b p-10 hover:bg-gray-50 text-default-text"
+        >
+          <td class="flex cursor-pointer items-center gap-2 p-3 capitalize">
+            {{ size.name }}
+          </td>
+          <td class="p-3">
+            {{ size.stock }}
+          </td>
+          <td class="p-3">
+          </td>
+          <td class="p-3 flex gap-2">
+            <ButtonIcon
+              color="bg-transparent hover:text-purple-500 text-blue-dark"
+              size="p-0"
+              @click="goToEditSize(size?._id)"
+            >
+              <EditIcon />
+            </ButtonIcon>
+            <ButtonIcon
+              color="bg-transparent text-blue-dark hover:text-red-500"
+              size="p-2"
+              :loading="loadingDelete"
+              @click="openModalDelete(size?._id)"
+            >
+              <TrashIcon />
+            </ButtonIcon>
+          </td>
+        </tr>
+      </template>
+      <template #pagination>
+        <section class="mt-4">
+          <Pagination
+            @changePageEmit="(page: number) => getSizes(page)"
+            :totalPages="totalPages"
+            :actualPage="actualPage"
+          />
+        </section>
+      </template>
+    </DataTable>
+  </section>
+
+  <Modal
+    v-if="isOpenDeleteModal"
+    :title="'¿Está seguro de que desea eliminar?'"
+    size="xs"
+    withButton
+    :firstButtonText="'Si, eliminar'"
+    :secondaryButtonText="'Cancelar'"
+    @close="isOpenDeleteModal = false"
+    @secondButtonAction="isOpenDeleteModal = false"
+    @firtsButtonAction="deleteSize(idToDelete)"
+  />
 </template>

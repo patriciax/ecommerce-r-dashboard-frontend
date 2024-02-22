@@ -18,7 +18,7 @@ const totalPages = ref(1)
 const loadingDelete = ref(false)
 const loadingProducts = ref(false)
 const isOpenDeleteModal = ref(false)
-const  idToDelete =ref()
+const idToDelete = ref()
 const deleteProduct = async (id: string) => {
   try {
     loadingDelete.value = true
@@ -27,7 +27,7 @@ const deleteProduct = async (id: string) => {
     if (result.status == 'success') {
       showNotification('producto eliminado', 'success')
     }
-
+    isOpenDeleteModal.value = false
     await getProducts()
     loadingDelete.value = false
   } catch (error) {
@@ -68,11 +68,11 @@ const titlesTable = computed(() => [
     title: ''
   }
 ])
+
 const openModalDelete = (_id: number) => {
   idToDelete.value = _id
   isOpenDeleteModal.value = true
 }
-
 
 onMounted(async () => {
   getProducts()
@@ -84,7 +84,12 @@ onMounted(async () => {
     <div>
       <h1 class="title">Lista de productos</h1>
     </div>
-    <DataTable :is-loading="loadingProducts" title="Productos" :noHaveData="products.length === 0" :headers="titlesTable">
+    <DataTable
+      :is-loading="loadingProducts"
+      title="Productos"
+      :noHaveData="products.length === 0"
+      :headers="titlesTable"
+    >
       <template #body>
         <tr
           v-for="product in products"
@@ -101,14 +106,18 @@ onMounted(async () => {
             <img :src="product?.mainImage" alt="product" class="w-12 h-12 rounded-sm" />
           </td>
           <td class="p-3 flex gap-2">
-            <ButtonIcon color="bg-transparent hover:text-purple-500 text-blue-dark" size="p-0" @click="goToEditProduct(product?._id)">
+            <ButtonIcon
+              color="bg-transparent hover:text-purple-500 text-blue-dark"
+              size="p-0"
+              @click="goToEditProduct(product?._id)"
+            >
               <EditIcon />
             </ButtonIcon>
             <ButtonIcon
               color="bg-transparent text-blue-dark hover:text-red-500"
-            size="p-2"
+              size="p-2"
               :loading="loadingDelete"
-              @click="openModalDelete"
+              @click="openModalDelete(product?._id)"
             >
               <TrashIcon />
             </ButtonIcon>
@@ -116,13 +125,13 @@ onMounted(async () => {
         </tr>
       </template>
       <template #pagination>
-    <section class="mt-4">
-        <Pagination
-          @changePageEmit="(page: number) => getProducts(page)"
-          :totalPages="totalPages"
-          :actualPage="actualPage"
-        />
-    </section>
+        <section class="mt-4">
+          <Pagination
+            @changePageEmit="(page: number) => getProducts(page)"
+            :totalPages="totalPages"
+            :actualPage="actualPage"
+          />
+        </section>
       </template>
     </DataTable>
   </section>
