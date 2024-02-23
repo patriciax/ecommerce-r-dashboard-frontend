@@ -57,11 +57,6 @@ const titlesTable = computed(() => [
     width: 'w-4/12',
     title: 'Nombre'
   },
-
-  {
-    width: 'w-1/6',
-    title: 'Stock'
-  },
   {
     width: 'w-1/2',
     title: ''
@@ -100,9 +95,6 @@ onMounted(async () => {
         >
           <td class="flex cursor-pointer items-center gap-2 p-3 capitalize">
             {{ color.name }}
-          </td>
-          <td class="p-3">
-            {{ color.stock }}
           </td>
           <td class="p-3">
           </td>

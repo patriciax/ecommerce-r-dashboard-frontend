@@ -60,10 +60,6 @@ const titlesTable = computed(() => [
   },
 
   {
-    width: 'w-1/6',
-    title: 'Stock'
-  },
-  {
     width: 'w-1/2',
     title: ''
   },
