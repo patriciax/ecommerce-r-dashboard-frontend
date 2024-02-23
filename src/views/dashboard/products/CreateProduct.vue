@@ -407,7 +407,7 @@ onMounted(() => {
 
         <section class="flex justify-center my-2 mt-4 pt-4 border-t">
           <RouterLink to="/dashboard/product/list">
-            <Button buttonType="submit" title="Ver todos los productos" :loading="loading" />
+            <Button buttonType="button" title="Ver todos los productos" />
           </RouterLink>
         </section>
       </div>

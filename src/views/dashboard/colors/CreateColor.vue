@@ -137,6 +137,12 @@ onMounted(() => {
           </div>
           <p class="text-sm font-semibold mb-0.5 truncate w-36 text-default-text capitalize">{{ color.name }}</p>
         </div>
+        <section class="flex justify-center my-2 mt-4 pt-4 border-t">
+          <RouterLink to="/dashboard/size/list">
+            <Button buttonType="button" title="Ver todos los colores" />
+          </RouterLink>
+        </section>
+
       </div>
     </div>
   </section>
