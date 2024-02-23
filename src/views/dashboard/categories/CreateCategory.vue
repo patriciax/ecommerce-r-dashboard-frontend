@@ -74,7 +74,7 @@ const submitCategory = async () => {
     //     return
     // }
 
-    // loading.value = true
+    loading.value = true
 
     // const reader = new FileReader();
 
@@ -114,6 +114,7 @@ const submitCategory = async () => {
     clearForm()
     loading.value = false
   } catch (error) {
+    loading.value= false
     console.log(error)
     showNotification('Error al crear la categoría', 'error')
   }
@@ -220,7 +221,7 @@ onMounted(async () => {
         </div>
         <section class="flex justify-center my-2 mt-4 pt-4 border-t">
           <RouterLink to="/dashboard/category/list">
-            <Button buttonType="submit" title="Ver todas las categorías" :loading="loading" />
+            <Button buttonType="submit" title="Ver todas las categorías" />
           </RouterLink>
         </section>
       </div>

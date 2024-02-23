@@ -121,6 +121,7 @@ const submitCategory = async () => {
       await router.push({ name: 'list-category' })
     }
   } catch (error) {
+    loading.value= false
     console.log(error)
     showNotification('Error al actualizar producto', 'error')
   }

@@ -46,13 +46,6 @@ const logout = () => {
       <ul>
         <li
           class="p-2 cursor-pointer flex items-center hover:bg-blue-300 hover:text-blue-600 hover:font-bold rounded-md"
-          @click="showMenu = !showMenu"
-        >
-          <ProfileIcon />
-          <span class="ml-2">Perfil</span>
-        </li>
-        <li
-          class="p-2 cursor-pointer flex items-center hover:bg-blue-300 hover:text-blue-600 hover:font-bold rounded-md"
           @click="logout"
         >
           <LogOutIcon />
