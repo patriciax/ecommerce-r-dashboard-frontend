@@ -523,11 +523,6 @@ onMounted(async () => {
             <span class="font-semibold">${{ latestProduct.price }}</span>
           </div>
         </div>
-        <section class="flex justify-center my-2 mt-4 pt-4 border-t">
-          <RouterLink to="/dashboard/product/list">
-            <Button buttonType="submit" title="Ver todos los productos" :loading="loading" />
-          </RouterLink>
-        </section>
       </div>
     </div>
   </section>
