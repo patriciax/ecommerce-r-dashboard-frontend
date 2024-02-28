@@ -237,7 +237,7 @@ const getAllCategories = async () => {
   categories.value = response.data?.categories.map((category: any) => {
     return {
       id: category._id,
-      name: category.name
+      name: `${category.ancestors.reverse().map((item:any) => item.name)} ${category.name}`
     }
   })
 }

@@ -111,7 +111,7 @@ const submitCategory = async () => {
     allCategories.value = response.data?.categories?.map((item: any) => {
       return {
         id: item._id,
-        name: item.name
+        name: `${item.ancestors.reverse().map((i:any) => i.name)} ${item.name}`
       }
     })
     loading.value = false
@@ -148,7 +148,7 @@ onMounted(async () => {
   allCategories.value = response.data?.categories?.map((item: any) => {
     return {
       id: item._id,
-      name: item.name
+      name: `${item.ancestors.reverse().map((i:any) => i.name)} ${item.name}`
     }
   })
 })
@@ -234,6 +234,7 @@ onMounted(async () => {
         >
           <!-- <img :src="category?.image" alt="product" class="w-16 h-16 rounded-full" /> -->
           <div class="">
+            <small v-for="smallCategory in category.ancestors.map((item:any) => item.name).reverse()" class="ml-2" >{{ smallCategory }}</small>
             <p class="text-sm font-semibold mb-0.5 truncate w-36 text-default-text capitalize">{{ category.name }}</p>
           </div>
         </div>

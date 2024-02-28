@@ -98,8 +98,9 @@ onMounted(async () => {
           :key="category?._id"
           class="border-b p-10 hover:bg-gray-50 text-default-text"
         >
-          <td class="flex cursor-pointer items-center gap-2 p-3 capitalize">
-            {{ category.name }}
+          <td class="cursor-pointer items-center gap-2 p-3 capitalize">
+            <small v-for="smallCategory in category.ancestors.map((item:any) => item.name).reverse()" class="ml-2" >{{ smallCategory }}</small>
+            <p>{{ category.name }}</p>
           </td>
           <td class="p-3"></td>
           <td class="p-3"></td>
