@@ -21,6 +21,7 @@ import { useRoute } from 'vue-router'
 import ButtonIcon from '@/components/ButtonIcon.vue'
 import TrashIcon from '@/components/icons/TrashIcon.vue'
 import router from '@/router'
+import SelectField from '@/components/SelectField.vue'
 
 const route = useRoute()
 const lastestProductsList: any = ref([])
@@ -80,6 +81,7 @@ const defaultCategories = ref([])
 const state = reactive({
   colors: [],
   sizes: [],
+  showInHomeSection: '',
   categories: [],
   productName: '',
   productNameEnglish: '',
@@ -193,7 +195,8 @@ const submitProduct = async () => {
       stock: state.stock,
       priceDiscount: state.priceDiscount || 0,
       description: state.description,
-      descriptionEnglish: state.descriptionEnglish
+      descriptionEnglish: state.descriptionEnglish,
+      showInHomeSection: state.showInHomeSection
     }
 
     await updateProduct(route.params.id.toString(), data)
@@ -256,6 +259,7 @@ const loadProduct = async (productId: string) => {
   state.priceDiscount = result.data?.priceDiscount
   defaultMainImage.value = result.data?.mainImage
   defaultImages.value = result.data?.images
+  state.showInHomeSection = result.data?.showInHomeSection
 
   defaultColors.value = state.colors.filter((color: any) =>
     colors.value.find((defaultColor: any) => defaultColor.id.toString() === color.toString())
@@ -376,6 +380,12 @@ onMounted(async () => {
               :defaultValues="defaultCategories"
               :error="`${categoriesError}`"
             />
+            <SelectField
+                  v-if="showImageInputs"
+                  v-model="state.showInHomeSection"
+                  label="Sección del home"
+                  placeholder="Seleccione una sección"
+                  :options="[{ id: 'section-1', name: 'Novedades' }, { id: 'section-2', name: 'Novedades 2' }, { id: 'section-3', name: 'Novedades 3' }]" />
           </div>
           <div class="flex w-full gap-4 col-span-2 lg:col-span-1">
             <MultipleSelectField

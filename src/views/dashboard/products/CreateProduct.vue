@@ -13,6 +13,7 @@ import { allSizes } from '@/api/repositories/product.repository'
 import { allColors } from '@/api/repositories/product.repository'
 import { allCategories } from '@/api/repositories/product.repository'
 import MultipleSelectField from '@/components/MultipleSelectField.vue'
+import SelectField from '@/components/SelectField.vue'
 
 const lastestProductsList: any = ref([])
 
@@ -71,7 +72,8 @@ const state = reactive({
   descriptionEnglish: '',
   price: null,
   stock: null,
-  priceDiscount: ''
+  priceDiscount: '',
+  showInHomeSection: ''
 })
 
 const changeColors = (value: any) => {
@@ -175,7 +177,8 @@ const submitProduct = async () => {
       stock: state.stock,
       description: state.description,
       descriptionEnglish: state.descriptionEnglish,
-      priceDiscount: state.priceDiscount || 0
+      priceDiscount: state.priceDiscount || 0,
+      showInHomeSection: state.showInHomeSection
     }
 
     await createProduct(data)
@@ -288,7 +291,7 @@ onMounted(() => {
                 :error="`${descriptionError}`"
                 v-model="state.description"
               />
-              <div class="flex w-full gap-4">
+              <div class="flex-col w-full gap-4">
                 <MultipleSelectField
                   v-if="showImageInputs"
                   @changeValue="changeCategories"
@@ -298,6 +301,12 @@ onMounted(() => {
                   v-model="state.categories"
                   :error="`${categoriesError}`"
                 />
+                <SelectField
+                  v-if="showImageInputs"
+                  v-model="state.showInHomeSection"
+                  label="Sección del home"
+                  placeholder="Seleccione una sección"
+                  :options="[{ id: 'section-1', name: 'Novedades' }, { id: 'section-2', name: 'Novedades 2' }, { id: 'section-3', name: 'Novedades 3' }]" />
               </div>
             </div>
             <section class="grid h-fit gap-4">
