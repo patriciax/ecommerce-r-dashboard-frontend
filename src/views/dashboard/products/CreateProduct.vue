@@ -306,7 +306,7 @@ onMounted(() => {
                   v-model="state.showInHomeSection"
                   label="Sección del home"
                   placeholder="Seleccione una sección"
-                  :options="[{ id: 'section-1', name: 'Novedades' }, { id: 'section-2', name: 'Novedades 2' }, { id: 'section-3', name: 'Novedades 3' }]" />
+                  :options="[{ id: 'section-1', name: 'Novedades' }, { id: 'section-2', name: 'Productos recomendados' }, { id: 'section-3', name: 'Popular' }]" />
               </div>
             </div>
             <section class="grid h-fit gap-4">

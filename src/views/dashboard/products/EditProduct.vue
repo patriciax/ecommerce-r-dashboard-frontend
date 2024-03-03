@@ -385,7 +385,7 @@ onMounted(async () => {
                   v-model="state.showInHomeSection"
                   label="Sección del home"
                   placeholder="Seleccione una sección"
-                  :options="[{ id: 'section-1', name: 'Novedades' }, { id: 'section-2', name: 'Novedades 2' }, { id: 'section-3', name: 'Novedades 3' }]" />
+                  :options="[{ id: 'section-1', name: 'Novedades' }, { id: 'section-2', name: 'Productos recomendados' }, { id: 'section-3', name: 'Popular' }]" />
           </div>
           <div class="flex w-full gap-4 col-span-2 lg:col-span-1">
             <MultipleSelectField
