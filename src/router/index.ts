@@ -25,6 +25,7 @@ import EditGiftCardVue from '@/views/dashboard/giftCards/EditGiftCard.vue'
 import clientListVue from '@/views/dashboard/clients/clientList.vue'
 import createNewsLetterVue from '@/views/dashboard/newsletters/createNewsLetter.vue'
 import listNewsletterVue from '@/views/dashboard/newsletters/listNewsletter.vue'
+import bannerManageVue from '@/views/dashboard/banner/bannerManage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -186,7 +187,15 @@ const router = createRouter({
         name: 'list-newsletter',
         component: listNewsletterVue,
         meta: { requiresAuth: true },
-      }
+      },
+
+
+      {
+        path: '/dashboard/banner/manage',
+        name: 'banner-manage',
+        component: bannerManageVue,
+        meta: { requiresAuth: true },
+      },
 
     ]
    },

@@ -54,6 +54,10 @@ const newsletterOptions = [
   { title: 'Crear newsletter', link: '/dashboard/newsletters/create' },
   { title: 'Ver newsletter', link: '/dashboard/newsletters/list' }
 ]
+
+const bannerOptions = [
+  { title: 'Administrar banner', link: '/dashboard/banner/manage' }
+]
 </script>
 
 <template>
@@ -130,6 +134,13 @@ const newsletterOptions = [
       title="Newsletters"
       :options="newsletterOptions"
       v-if="authStore.user?.role?.permissions.find((item: any) => item == 'NEWSLETTER-LIST')"
+    />
+
+    <Accordion
+    :icon="SwatchIcon"
+      title="Banner"
+      :options="bannerOptions"
+      v-if="authStore.user?.role?.permissions.find((item: any) => item == 'BANNER-CREATE')"
     />
   </div>
 </template>
