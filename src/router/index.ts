@@ -26,6 +26,7 @@ import clientListVue from '@/views/dashboard/clients/clientList.vue'
 import createNewsLetterVue from '@/views/dashboard/newsletters/createNewsLetter.vue'
 import listNewsletterVue from '@/views/dashboard/newsletters/listNewsletter.vue'
 import bannerManageVue from '@/views/dashboard/banner/bannerManage.vue'
+import invoicesVue from '@/views/dashboard/invoices/Invoices.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -194,6 +195,15 @@ const router = createRouter({
         path: '/dashboard/banner/manage',
         name: 'banner-manage',
         component: bannerManageVue,
+        meta: { requiresAuth: true },
+      },
+
+
+
+      {
+        path: '/dashboard/invoices/manage',
+        name: 'invoices-manage',
+        component: invoicesVue,
         meta: { requiresAuth: true },
       },
 

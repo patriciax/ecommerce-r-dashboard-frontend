@@ -58,6 +58,10 @@ const newsletterOptions = [
 const bannerOptions = [
   { title: 'Administrar banner', link: '/dashboard/banner/manage' }
 ]
+
+const invoicesOptions = [
+  { title: 'Administrar compras', link: '/dashboard/invoices/manage' }
+]
 </script>
 
 <template>
@@ -140,6 +144,13 @@ const bannerOptions = [
     :icon="SwatchIcon"
       title="Banner"
       :options="bannerOptions"
+      v-if="authStore.user?.role?.permissions.find((item: any) => item == 'BANNER-CREATE')"
+    />
+
+    <Accordion
+    :icon="SwatchIcon"
+      title="Compras"
+      :options="invoicesOptions"
       v-if="authStore.user?.role?.permissions.find((item: any) => item == 'BANNER-CREATE')"
     />
   </div>

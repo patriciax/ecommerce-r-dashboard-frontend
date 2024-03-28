@@ -59,21 +59,22 @@ const sizesError = computed(() => {
 
 const showImageInputs = ref(true)
 const loading = ref(false)
-const sizes = ref([])
-const colors = ref([])
+const sizes:any = ref([])
+const colors:any = ref([])
 const categories = ref([])
 const state = reactive({
-  colors: [],
-  sizes: [],
+  colors: '',
+  sizes: '',
   categories: [],
   productName: '',
   productNameEnglish: '',
   description: '',
   descriptionEnglish: '',
   price: null,
-  stock: null,
+  stock: 0,
   priceDiscount: '',
-  showInHomeSection: ''
+  showInHomeSection: '',
+  productVariations: [] as any
 })
 
 const changeColors = (value: any) => {
@@ -101,13 +102,7 @@ const rules = {
     required: helpers.withMessage('Este campo no puede estar vacío', required),
     numeric: helpers.withMessage('Solo se permiten números', numeric)
   },
-  stock: {
-    required: helpers.withMessage('Este campo no puede estar vacío', required),
-    integer: helpers.withMessage('Solo se permiten números', integer)
-  },
-  colors: { required: helpers.withMessage('Este campo no puede estar vacío', required) },
   categories: { required: helpers.withMessage('Este campo no puede estar vacío', required) },
-  sizes: { required: helpers.withMessage('Este campo no puede estar vacío', required) },
   priceDiscount: { numeric: helpers.withMessage('Solo se permiten números', numeric) }
 }
 
@@ -124,6 +119,11 @@ const awaitTime = () => {
 const submitProduct = async () => {
   const isFormCorrect = await v$.value.$validate()
   if (!isFormCorrect) return
+
+  if(state.productVariations.length == 0){
+    showNotification('Debe agregar al menos una variación', 'error')
+    return
+  }
 
   loading.value = true
   try {
@@ -166,19 +166,17 @@ const submitProduct = async () => {
     }
 
     const data = {
-      colors: state.colors,
-      sizes: state.sizes,
       categories: state.categories,
       mainImage: mainImage64,
       images: images64,
       title: state.productName,
       titleEnglish: state.productNameEnglish,
       price: state.price,
-      stock: state.stock,
       description: state.description,
       descriptionEnglish: state.descriptionEnglish,
       priceDiscount: state.priceDiscount || 0,
-      showInHomeSection: state.showInHomeSection
+      showInHomeSection: state.showInHomeSection,
+      productVariations: state.productVariations
     }
 
     await createProduct(data)
@@ -193,15 +191,45 @@ const submitProduct = async () => {
   }
 }
 
+const addVariation = () => {
+  if (state.colors && state.sizes && state.stock) {
+
+    if(state.productVariations.length > 0){
+      const exist = state.productVariations.find((item: any) => item.color === state.colors && item.size === state.sizes)
+      if(exist){
+        showNotification('Ya existe una variación con el mismo color y talla', 'error')
+        return
+      }
+    }
+
+    state.productVariations.push({
+      color: state.colors as string,
+      size: state.sizes as string,
+      stock: state.stock as number
+    });
+
+    state.colors = ''
+    state.sizes = ''
+    state.stock = 0
+  }else{
+    showNotification('Debe seleccionar un color, una talla y un stock', 'error')
+    return
+  }
+}
+
+const deleteVariation = (index: number) => {
+  state.productVariations.splice(index, 1)
+}
+
 const clearForm = () => {
   state.productName = ''
   state.description = ''
   state.productNameEnglish = ''
   state.descriptionEnglish = ''
   state.price = null
-  state.stock = null
-  state.colors = []
-  state.sizes = []
+  state.stock = 0
+  state.colors = ''
+  state.sizes = ''
   state.categories = []
   state.priceDiscount = ''
 
@@ -310,15 +338,6 @@ onMounted(() => {
               </div>
             </div>
             <section class="grid h-fit gap-4">
-              <TextField
-                class="w-full"
-                :onlyNumber="true"
-                label="Stock del producto"
-                type="text"
-                placeholder="Ingrese el stock del producto"
-                :error="`${stockError}`"
-                v-model="state.stock"
-              />
               <div class="flex w-full gap-4">
                 <TextField
                   class="w-full"
@@ -347,26 +366,6 @@ onMounted(() => {
                 v-model="state.descriptionEnglish"
               />
 
-              <div class="flex flex-col xl:flex-row w-full gap-4">
-                <MultipleSelectField
-                  v-if="showImageInputs"
-                  @changeValue="changeColors"
-                  label="Colores"
-                  placeholder="Seleccione uno o varios colors"
-                  :options="colors"
-                  v-model="state.colors"
-                  :error="`${colorsError}`"
-                />
-                <MultipleSelectField
-                  v-if="showImageInputs"
-                  @changeValue="changeSizes"
-                  label="Tallas"
-                  placeholder="Seleccione uno o varias tallas"
-                  :options="sizes"
-                  v-model="state.sizes"
-                  :error="`${sizesError}`"
-                />
-              </div>
             </section>
           </section>
           <div class="grid xl:grid-cols-2 w-full gap-x-10 gap-y-3 mt-4 mb-6" v-if="showImageInputs">
@@ -387,7 +386,61 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          <section class="text-end">
+
+          <div class="flex items-center justify-center">
+            <p>Variaciones del producto</p>
+          </div>
+
+          <div class="flex gap-4">
+            <SelectField
+              v-if="showImageInputs"
+              @changeValue="changeColors"
+              label="Colores"
+              placeholder="Seleccione un color"
+              :options="colors"
+              v-model="state.colors"
+              :error="`${colorsError}`"/>
+            
+            <SelectField
+              v-if="showImageInputs"
+              @changeValue="changeSizes"
+              label="Tallas"
+              placeholder="Seleccione una talla"
+              :options="sizes"
+              v-model="state.sizes"
+              :error="`${sizesError}`"/>
+
+            <TextField
+                class="w-full"
+                :onlyNumber="true"
+                label="Stock"
+                type="text"
+                placeholder="Ingrese el stock"
+                v-model="state.stock"
+              />
+
+              <Button buttonType="button" title="+" @click="addVariation" />
+              
+          </div>
+
+          <table class="w-full">
+            <tr>
+              <th class="text-start w-1/4">Color</th>
+              <th class="text-start w-1/4">Talla</th>
+              <th class="text-start w-1/4">Stock</th>
+              <th class="w-1/4"></th>
+            </tr>
+            <tr v-for="(variation, index) in state.productVariations">
+              <td>{{ colors.find((color: any) => color.id == variation.color)?.name }}</td>
+              <td>{{ sizes.find((size: any) => size.id == variation.size)?.name }}</td>
+              <td>{{ variation.stock }}</td>
+              <td>
+                <Button buttonType="button" title="Eliminar" @click="deleteVariation(index)" />
+              </td>
+            </tr>
+          </table>
+
+          <section class="text-end mt-6">
             <Button buttonType="submit" title="Crear producto +" :loading="loading" />
           </section>
         </form>
