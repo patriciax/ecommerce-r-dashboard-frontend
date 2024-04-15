@@ -232,6 +232,7 @@ const clearForm = () => {
   state.sizes = ''
   state.categories = []
   state.priceDiscount = ''
+  state.productVariations = []
 
   showImageInputs.value = false
   nextTick(() => {

@@ -2,7 +2,6 @@
 import { invoicesList, updateInvoice } from '@/api/repositories/invoice.repository'
 import { onMounted, ref,computed } from 'vue'
 import ButtonIcon from '@/components/ButtonIcon.vue'
-import TrashIcon from '@/components/icons/TrashIcon.vue'
 import EditIcon from '@/components/icons/EditIcon.vue'
 import { showNotification } from '@/composables/useNotification'
 import { useRouter } from 'vue-router'
@@ -10,12 +9,14 @@ import Pagination from '@/components/Pagination.vue'
 import DataTable from '@/components/DataTable.vue'
 import Modal from '@/components/Modal.vue'
 import TextField from '@/components/TextField.vue'
+import IconDocumentation from '@/components/icons/IconDocumentation.vue'
 
+const openProductsModal = ref(false)
 const isOpenAddTrackingModal = ref(false)
 const invoiceToAddTracking = ref()
+const invoiceToshowProducts = ref()
 const trackingToAdd = ref("")
 
-const router = useRouter()
 const invoices: any = ref([])
 const limit = ref(10)
 const loadingInvoices = ref(false)
@@ -79,6 +80,10 @@ const updateTracking = async (invoice: any) => {
 
 }
 
+const productsToShow = computed(() => {
+  return invoices.value.find((invoice: any) => invoice._id == invoiceToshowProducts.value)?.invoiceProduct
+})
+
 onMounted(async () => {
     getInvoices()
 })
@@ -105,16 +110,16 @@ onMounted(async () => {
             {{ invoice.created.toString().substring(0, 10) }}
           </td>
           <td class="p-3">
-            {{ invoice.user?.name ?? invoice.name }}
+            {{ invoice.user?.name ?? invoice?.name }}
           </td>
           <td class="p-3">
-            {{ invoice.user?.email  ?? invoice.email }}
+            {{ invoice.user?.email  ?? invoice?.email }}
           </td>
           <td class="p-3">
-            {{ invoice.transactionOrder }}
+            {{ invoice?.transactionOrder }}
           </td>
           <td class="p-3">
-            {{ invoice.shippingService }}
+            {{ invoice?.carrier?.carrierName }}
           </td>
           <td class="p-3">
             {{ invoice.shippingTracking ?? 'Pendiente por tracking' }}
@@ -127,6 +132,15 @@ onMounted(async () => {
             >
               <EditIcon />
             </ButtonIcon>
+
+            <ButtonIcon
+              color="bg-transparent hover:text-purple-500 text-blue-dark"
+              size="p-0"
+              @click="openProductsModal = true; invoiceToshowProducts = invoice._id"
+            >
+              <IconDocumentation/>
+            </ButtonIcon>
+
           </td>
         </tr>
       </template>
@@ -160,6 +174,42 @@ onMounted(async () => {
             label="Número de tracking"
             type="text"
           />
+        </div>
+      </section>
+    </Modal>
+
+    <Modal
+      v-if="openProductsModal"
+      :title="'Productos de la compra'"
+      size="lg"
+      @close="openProductsModal = false"
+    >
+      <section>
+        <div class="mb-4">
+          <table class="w-full text-sm text-left rtl:text-right">
+            <thead class=" uppercase ">
+              <tr>
+                <th scope="col" class="px-6 py-3">Nombre</th>
+                <th scope="col" class="px-6 py-3">Talla</th>
+                <th scope="col" class="px-6 py-3">Color</th>
+                <th scope="col" class="px-6 py-3">Cantidad</th>
+                <th scope="col" class="px-6 py-3">Precio</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                class="border-b dark:border-gray-700"
+                v-for="product in productsToShow"
+                :key="product._id"
+              >
+                <td class="px-6 py-4">{{ product.product.name }}</td>
+                <td class="px-6 py-4">{{ product.size.name }}</td>
+                <td class="px-6 py-4">{{ product.color.name }}</td>
+                <td class="px-6 py-4">{{ product.quantity }}</td>
+                <td class="px-6 py-4">${{ product.product.priceDiscount || product.product.price }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
     </Modal>

@@ -62,6 +62,11 @@ const bannerOptions = [
 const invoicesOptions = [
   { title: 'Administrar compras', link: '/dashboard/invoices/manage' }
 ]
+
+const pagoMovilOptions = [
+  { title: 'Pago móvil', link: '/dashboard/pago-movil/manage' }
+]
+
 </script>
 
 <template>
@@ -151,6 +156,13 @@ const invoicesOptions = [
     :icon="SwatchIcon"
       title="Compras"
       :options="invoicesOptions"
+      v-if="authStore.user?.role?.permissions.find((item: any) => item == 'BANNER-CREATE')"
+    />
+
+    <Accordion
+    :icon="SwatchIcon"
+      title="Pago móvil"
+      :options="pagoMovilOptions"
       v-if="authStore.user?.role?.permissions.find((item: any) => item == 'BANNER-CREATE')"
     />
   </div>
