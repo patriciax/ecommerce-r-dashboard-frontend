@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { invoicesList, updateInvoice } from '@/api/repositories/invoice.repository'
+import { invoicesList, updateInvoice, updateInvoiceStatus, updateGiftCardStatus } from '@/api/repositories/invoice.repository'
 import { onMounted, ref,computed } from 'vue'
 import ButtonIcon from '@/components/ButtonIcon.vue'
+import Button from '@/components/Button.vue'
 import EditIcon from '@/components/icons/EditIcon.vue'
 import { showNotification } from '@/composables/useNotification'
 import { useRouter } from 'vue-router'
@@ -10,13 +11,22 @@ import DataTable from '@/components/DataTable.vue'
 import Modal from '@/components/Modal.vue'
 import TextField from '@/components/TextField.vue'
 import IconDocumentation from '@/components/icons/IconDocumentation.vue'
+import IconPay from '@/components/icons/IconPay.vue'
+import { getPagoMovil } from '@/api/repositories/pagoMovil.repository'
 
 const openProductsModal = ref(false)
 const isOpenAddTrackingModal = ref(false)
 const invoiceToAddTracking = ref()
 const invoiceToshowProducts = ref()
+const openPagosModalZelle = ref(false)
+const invoiceToShowPaymentMethod = ref()
+const invoiceToShowPagos = ref()
 const trackingToAdd = ref("")
+const openPagosModal = ref(false)
 
+const bank = ref("")
+const identification = ref("")
+const phone = ref("")
 const invoices: any = ref([])
 const limit = ref(10)
 const loadingInvoices = ref(false)
@@ -52,6 +62,18 @@ const titlesTable = computed(() => [
   },
   {
     width: 'w-1/12',
+    title: 'Método de pago'
+  },
+  {
+    width: 'w-1/12',
+    title: 'Status'
+  },
+  {
+    width: 'w-1/12',
+    title: 'Tipo de compra'
+  },
+  {
+    width: 'w-1/12',
     title: 'Servicio de envío'
   },
   {
@@ -80,12 +102,53 @@ const updateTracking = async (invoice: any) => {
 
 }
 
+const acceptPago = async () => {
+  try {
+
+    if(invoices.value.find((invoice: any) => invoice._id == invoiceToShowPagos.value)?.purchaseType == 'giftCard'){
+      await updateGiftCardStatus(invoiceToShowPagos.value, { status: 'approved' })
+    }else{
+      await updateInvoiceStatus(invoiceToShowPagos.value, { status: 'approved' })
+    }
+    
+    openPagosModal.value = false
+    openPagosModalZelle.value = false
+    await getInvoices()
+  } catch (error) {
+    showNotification('Error al aceptar el pago', 'error')
+  }
+}
+
+const rejectPago = async () => {
+  try {
+    if(invoices.value.find((invoice: any) => invoice._id == invoiceToShowPagos.value)?.purchaseType == 'giftCard'){
+      await updateGiftCardStatus(invoiceToShowPagos.value, { status: 'rejected' })
+    }else{
+      await updateInvoiceStatus(invoiceToShowPagos.value, { status: 'rejected' })
+    }
+    openPagosModal.value = false
+    openPagosModalZelle.value = false
+    await getInvoices()
+  } catch (error) {
+    showNotification('Error al aceptar el pago', 'error')
+  }
+}
+
 const productsToShow = computed(() => {
   return invoices.value.find((invoice: any) => invoice._id == invoiceToshowProducts.value)?.invoiceProduct
 })
 
+const pagosToShow = computed(() => {
+  return invoices.value.find((invoice: any) => invoice._id == invoiceToShowPagos.value)
+})
+
 onMounted(async () => {
     getInvoices()
+    const response = await getPagoMovil()
+
+    bank.value = response.data?.bank
+    identification.value = response.data?.identification
+    phone.value = response.data?.phone
 })
 </script>
 
@@ -119,13 +182,23 @@ onMounted(async () => {
             {{ invoice?.transactionOrder }}
           </td>
           <td class="p-3">
+            {{ invoice?.payment?.type }}
+          </td>
+          <td class="p-3">
+            {{ invoice?.payment?.status }}
+          </td>
+          <td class="p-3">
+            {{ invoice?.payment?.purchaseType }}
+          </td>
+          <td class="p-3">
             {{ invoice?.carrier?.carrierName }}
           </td>
           <td class="p-3">
-            {{ invoice.shippingTracking ?? 'Pendiente por tracking' }}
+            {{ invoice?.payment?.purchaseType == 'giftCard' ? '' : (invoice.shippingTracking ?? 'Pendiente por tracking') }}
           </td>
           <td class="p-3 flex gap-2">
             <ButtonIcon
+              v-if="invoice?.payment?.status == 'approved' && invoice?.payment?.purchaseType == 'invoice'"
               color="bg-transparent hover:text-purple-500 text-blue-dark"
               size="p-0"
               @click="isOpenAddTrackingModal = true; invoiceToAddTracking = invoice._id"
@@ -134,11 +207,30 @@ onMounted(async () => {
             </ButtonIcon>
 
             <ButtonIcon
+            v-if="invoice?.payment?.purchaseType == 'invoice'"
               color="bg-transparent hover:text-purple-500 text-blue-dark"
               size="p-0"
               @click="openProductsModal = true; invoiceToshowProducts = invoice._id"
             >
               <IconDocumentation/>
+            </ButtonIcon>
+
+            <ButtonIcon
+              v-if="invoice?.payment?.type == 'pagoMovil' && invoice.payment?.status == 'pending'"
+              color="bg-transparent hover:text-purple-500 text-blue-dark"
+              size="p-0"
+              @click="openPagosModal = true; invoiceToShowPagos = invoice._id"
+            >
+              <IconPay/>
+            </ButtonIcon>
+
+            <ButtonIcon
+              v-if="invoice?.payment?.type == 'zelle' && invoice.payment?.status == 'pending'"
+              color="bg-transparent hover:text-purple-500 text-blue-dark"
+              size="p-0"
+              @click="openPagosModalZelle = true; invoiceToShowPagos = invoice._id"
+            >
+              <IconPay/>
             </ButtonIcon>
 
           </td>
@@ -209,6 +301,100 @@ onMounted(async () => {
                 <td class="px-6 py-4">${{ product.product.priceDiscount || product.product.price }}</td>
               </tr>
             </tbody>
+          </table>
+        </div>
+      </section>
+    </Modal>
+
+    <Modal
+      v-if="openPagosModal"
+      :title="'Métodos de pago'"
+      size="lg"
+      @close="openPagosModal = false"
+    >
+      <section>
+        <div class="mb-4">
+          <table class="w-full text-sm text-left rtl:text-right">
+            <thead class=" uppercase ">
+              <tr>
+                <th scope="col" class="px-6 py-3">Banco</th>
+                <th scope="col" class="px-6 py-3">Referencia</th>
+                <th scope="col" class="px-6 py-3">Fecha</th>
+                <th scope="col" class="px-6 py-3">Monto</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                class="border-b dark:border-gray-700"
+                :key="pagosToShow._id"
+              >
+                <td class="px-6 py-4">{{ pagosToShow?.payment?.bank }}</td>
+                <td class="px-6 py-4">{{ pagosToShow.pagoMovilReference }}</td>
+                <td class="px-6 py-4">{{ pagosToShow.pagoMovilDate.substring(0, 10) }}</td>
+                <td class="px-6 py-4">${{ pagosToShow.payment?.total.toFixed(2) }}</td>
+              </tr>
+            </tbody>
+            <tfoot class="flex space-x-2 mt-2" >
+              <Button
+              color="primary"
+              title="Aceptar"
+              size="w-full"  
+              @click="acceptPago"
+              />
+              <Button
+              color="secondary"
+              title="Rechazar"
+              size="w-full" 
+              @click="rejectPago" 
+              />
+            </tfoot>
+          </table>
+        </div>
+      </section>
+    </Modal>
+
+    <Modal
+      v-if="openPagosModalZelle"
+      :title="'Métodos de pago'"
+      size="lg"
+      @close="openPagosModalZelle = false"
+    >
+      <section>
+        <div class="mb-4">
+          <table class="w-full text-sm text-left rtl:text-right">
+            <thead class=" uppercase ">
+              <tr>
+                <th scope="col" class="px-6 py-3">Zelle</th>
+                <th scope="col" class="px-6 py-3">Referencia</th>
+                <th scope="col" class="px-6 py-3">Fecha</th>
+                <th scope="col" class="px-6 py-3">Monto</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                class="border-b dark:border-gray-700"
+                :key="pagosToShow._id"
+              >
+                <td class="px-6 py-4">{{ pagosToShow?.payment?.zelleEmail }}</td>
+                <td class="px-6 py-4">{{ pagosToShow.pagoMovilReference }}</td>
+                <td class="px-6 py-4">{{ pagosToShow.pagoMovilDate.substring(0, 10) }}</td>
+                <td class="px-6 py-4">${{ pagosToShow.payment?.total.toFixed(2) }}</td>
+              </tr>
+            </tbody>
+            <tfoot class="flex space-x-2  mt-2">
+              <Button
+              color="primary"
+              title="Aceptar"
+              size="w-full"  
+              @click="acceptPago"
+              />
+              <Button
+              color="secondary"
+              title="Rechazar"
+              size="w-full" 
+              @click="rejectPago" 
+              />
+            </tfoot>
           </table>
         </div>
       </section>

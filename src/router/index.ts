@@ -28,6 +28,7 @@ import listNewsletterVue from '@/views/dashboard/newsletters/listNewsletter.vue'
 import bannerManageVue from '@/views/dashboard/banner/bannerManage.vue'
 import invoicesVue from '@/views/dashboard/invoices/Invoices.vue'
 import pagoMovil from '@/views/dashboard/pagoMovil/pagoMovil.vue'
+import Zelle from '@/views/dashboard/zelle/zelle.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -212,6 +213,13 @@ const router = createRouter({
         path: '/dashboard/pago-movil/manage',
         name: 'pago-movil',
         component: pagoMovil,
+        meta: { requiresAuth: true },
+      },
+
+      {
+        path: '/dashboard/zelle/manage',
+        name: 'zelle',
+        component: Zelle,
         meta: { requiresAuth: true },
       },
 

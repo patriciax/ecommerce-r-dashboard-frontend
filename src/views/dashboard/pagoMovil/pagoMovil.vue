@@ -72,7 +72,6 @@ const submitPagoMovil = async () => {
 
     loading.value = false
   } catch (error) {
-    console.log(error)
     showNotification('Error al crear el pago movil', 'error')
   }
 }
