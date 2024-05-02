@@ -37,6 +37,22 @@ const priceError = computed(() => {
   return v$?.value.$errors?.find((item) => item.$property === 'price')?.$message || ''
 })
 
+const weightError = computed(() => {
+  return v$?.value.$errors?.find((item) => item.$property === 'weight')?.$message || ''
+})
+
+const widthError = computed(() => {
+  return v$?.value.$errors?.find((item) => item.$property === 'width')?.$message || ''
+})
+
+const lengthError = computed(() => {
+  return v$?.value.$errors?.find((item) => item.$property === 'length')?.$message || ''
+})
+
+const heightError = computed(() => {
+  return v$?.value.$errors?.find((item) => item.$property === 'height')?.$message || ''
+})
+
 const priceDiscountError = computed(() => {
   return v$?.value.$errors?.find((item) => item.$property === 'priceDiscount')?.$message || ''
 })
@@ -74,7 +90,11 @@ const state = reactive({
   stock: 0,
   priceDiscount: '',
   showInHomeSection: '',
-  productVariations: [] as any
+  productVariations: [] as any,
+  width: '',
+  height: '',
+  length: '',
+  weight: ''
 })
 
 const changeColors = (value: any) => {
@@ -103,7 +123,23 @@ const rules = {
     numeric: helpers.withMessage('Solo se permiten números', numeric)
   },
   categories: { required: helpers.withMessage('Este campo no puede estar vacío', required) },
-  priceDiscount: { numeric: helpers.withMessage('Solo se permiten números', numeric) }
+  priceDiscount: { numeric: helpers.withMessage('Solo se permiten números', numeric) },
+  width: {
+    required: helpers.withMessage('Este campo no puede estar vacío', required), 
+    numeric: helpers.withMessage('Solo se permiten números', numeric)
+  },
+  height: {
+    required: helpers.withMessage('Este campo no puede estar vacío', required), 
+    numeric: helpers.withMessage('Solo se permiten números', numeric)
+  },
+  length: {
+    required: helpers.withMessage('Este campo no puede estar vacío', required), 
+    numeric: helpers.withMessage('Solo se permiten números', numeric)
+  },
+  weight: {
+    required: helpers.withMessage('Este campo no puede estar vacío', required), 
+    numeric: helpers.withMessage('Solo se permiten números', numeric)
+  },
 }
 
 const v$ = useVuelidate(rules, state)
@@ -176,7 +212,11 @@ const submitProduct = async () => {
       descriptionEnglish: state.descriptionEnglish,
       priceDiscount: state.priceDiscount || 0,
       showInHomeSection: state.showInHomeSection,
-      productVariations: state.productVariations
+      productVariations: state.productVariations,
+      length: state.length,
+      width: state.width,
+      weight: state.weight,
+      height: state.height
     }
 
     await createProduct(data)
@@ -233,6 +273,10 @@ const clearForm = () => {
   state.categories = []
   state.priceDiscount = ''
   state.productVariations = []
+  state.width = ''
+  state.weight = ''
+  state.length = ''
+  state.height = ''
 
   showImageInputs.value = false
   nextTick(() => {
@@ -339,7 +383,7 @@ onMounted(() => {
               </div>
             </div>
             <section class="grid h-fit gap-4">
-              <div class="flex w-full gap-4">
+              <div class="flex flex-col w-full gap-4">
                 <TextField
                   class="w-full"
                   :onlyNumber="true"
@@ -366,6 +410,50 @@ onMounted(() => {
                 :error="`${descriptionErrorEnglish}`"
                 v-model="state.descriptionEnglish"
               />
+
+              <div class="flex gap-4">
+                <TextField
+                  class="w-full"
+                  :onlyNumber="true"
+                  label="Ancho del paquete (cm)"
+                  type="text"
+                  placeholder="Ingrese el ancho del empaque"
+                  :error="`${widthError}`"
+                  v-model="state.width"
+                />
+
+                <TextField
+                  class="w-full"
+                  :onlyNumber="true"
+                  label="Alto del paquete (cm)"
+                  type="text"
+                  placeholder="Ingrese el alto del empaque"
+                  :error="`${heightError}`"
+                  v-model="state.height"
+                />
+              </div>
+
+              <div class="flex gap-4">
+                <TextField
+                  class="w-full"
+                  :onlyNumber="true"
+                  label="Largo del paquete (cm)"
+                  type="text"
+                  placeholder="Ingrese el largo del empaque"
+                  :error="`${lengthError}`"
+                  v-model="state.length"
+                />
+
+                <TextField
+                  class="w-full"
+                  :onlyNumber="true"
+                  label="Peso del paquete (kg)"
+                  type="text"
+                  placeholder="Ingrese el peso del empaque"
+                  :error="`${weightError}`"
+                  v-model="state.weight"
+                />
+              </div>
 
             </section>
           </section>
