@@ -223,7 +223,11 @@ const submitProduct = async () => {
       description: state.description,
       descriptionEnglish: state.descriptionEnglish,
       showInHomeSection: state.showInHomeSection,
-      productVariations: state.productVariations
+      productVariations: state.productVariations,
+      width: state.width,
+      length: state.length,
+      height: state.height,
+      weight: state.weight
     }
 
     await updateProduct(route.params.id.toString(), data)
