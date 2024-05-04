@@ -632,7 +632,7 @@ onMounted(async () => {
                 <th class="text-start w-1/4">Stock</th>
                 <th class="w-1/4"></th>
               </tr>
-              <tr v-for="(variation, index) in state.productVariations">
+              <tr v-for="(variation, index) in state.productVariations" :key="index">
                 <td>{{ colors.find((color: any) => color.id == variation?.color)?.name }}</td>
                 <td>{{ sizes.find((size: any) => size.id == variation?.size)?.name }}</td>
                 <td>{{ variation.stock }}</td>
