@@ -25,6 +25,10 @@ import EditGiftCardVue from '@/views/dashboard/giftCards/EditGiftCard.vue'
 import clientListVue from '@/views/dashboard/clients/clientList.vue'
 import createNewsLetterVue from '@/views/dashboard/newsletters/createNewsLetter.vue'
 import listNewsletterVue from '@/views/dashboard/newsletters/listNewsletter.vue'
+import bannerManageVue from '@/views/dashboard/banner/bannerManage.vue'
+import invoicesVue from '@/views/dashboard/invoices/Invoices.vue'
+import pagoMovil from '@/views/dashboard/pagoMovil/pagoMovil.vue'
+import Zelle from '@/views/dashboard/zelle/zelle.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -186,7 +190,38 @@ const router = createRouter({
         name: 'list-newsletter',
         component: listNewsletterVue,
         meta: { requiresAuth: true },
-      }
+      },
+
+
+      {
+        path: '/dashboard/banner/manage',
+        name: 'banner-manage',
+        component: bannerManageVue,
+        meta: { requiresAuth: true },
+      },
+
+
+
+      {
+        path: '/dashboard/invoices/manage',
+        name: 'invoices-manage',
+        component: invoicesVue,
+        meta: { requiresAuth: true },
+      },
+
+      {
+        path: '/dashboard/pago-movil/manage',
+        name: 'pago-movil',
+        component: pagoMovil,
+        meta: { requiresAuth: true },
+      },
+
+      {
+        path: '/dashboard/zelle/manage',
+        name: 'zelle',
+        component: Zelle,
+        meta: { requiresAuth: true },
+      },
 
     ]
    },

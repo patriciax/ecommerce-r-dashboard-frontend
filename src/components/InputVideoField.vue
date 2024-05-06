@@ -2,6 +2,7 @@
 import { showNotification } from '@/composables/useNotification'
 import { nextTick, ref } from 'vue'
 
+const showVideo = ref(true)
 const showInput = ref(true)
 const props = defineProps({
   fieldId: {
@@ -12,18 +13,17 @@ const props = defineProps({
     type: String,
     default: 'Clic para cargar'
   },
-  defaultImage:{
+  defaultVideo:{
     type: String,
     default: ''
-  
   }
 })
 
-const emits = defineEmits(['changedImage'])
+const emits = defineEmits(['changedVideo'])
 
 const fileInput: any = ref(null)
 
-const previewImage: any = ref(null)
+const previewVideo: any = ref(null)
 
 const selectImage = () => {
   fileInput.value?.click()
@@ -35,8 +35,8 @@ const pickFile = () => {
 
   if (file && file[0]) {
     if (file[0]['size'] / 1000 > 10000) {
-      showNotification('Tamaño de imágen muy grande', 'error')
-      previewImage.value = null
+      showNotification('Tamaño de video muy grande', 'error')
+      previewVideo.value = null
       showInput.value = false
       nextTick(() => {
         showInput.value = true
@@ -44,9 +44,9 @@ const pickFile = () => {
       return
     }
 
-    if (file[0]['type'].split('/')[0] !== 'image') {
-      showNotification('Archivo seleccionado no es una imágen', 'error')
-      previewImage.value = null
+    if (file[0]['type'].split('/')[0] !== 'video') {
+      showNotification('Archivo seleccionado no es un video', 'error')
+      previewVideo.value = null
       showInput.value = false
       nextTick(() => {
         showInput.value = true
@@ -56,11 +56,13 @@ const pickFile = () => {
 
     let reader = new FileReader()
     reader.onload = (e) => {
-      previewImage.value = e?.target?.result
+      previewVideo.value = e?.target?.result
+      showVideo.value = false
+      setTimeout(() => showVideo.value = true, 100)
     }
     reader.readAsDataURL(file[0])
   }
-  emits('changedImage', true)
+  emits('changedVideo', true)
 }
 </script>
 
@@ -69,7 +71,7 @@ const pickFile = () => {
     <label
       class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-100 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-100 hover:bg-gray-100 dark:border-gray-300 dark:hover:border-gray-200 dark:hover:bg-gray-100"
     >
-      <div class="flex flex-col items-center justify-center pt-5 pb-6" v-if="!previewImage">
+      <div class="flex flex-col items-center justify-center pt-5 pb-6" v-if="!previewVideo">
         <svg
           class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
           aria-hidden="true"
@@ -89,23 +91,37 @@ const pickFile = () => {
           <span class="font-semibold">{{ $props.title }}</span>
         </p>
         <p class="text-xs text-center text-gray-500 dark:text-gray-400">
-          PNG, JPG or GIF (MAX. 800x400px)
+          MP4, MOV or WEBM
         </p>
       </div>
       <div
-        v-if="previewImage"
+        v-if="previewVideo"
         class="imagePreviewWrapper rounded-lg "
-        :style="{ 'background-image': `url(${previewImage})` }"
-      ></div>
+      >
+        <video muted autoplay loop playsinline v-if="showVideo">
+            <source :src="previewVideo" type="video/mp4">
+            <source :src="previewVideo" type="video/mov">
+            <source :src="previewVideo" type="video/webm">
+            
+            Your browser does not support HTML video.
+        </video>
+      </div>
 
       <div
-        v-if="props.defaultImage && !previewImage"
+        v-if="props.defaultVideo && !previewVideo"
         class="imagePreviewWrapper rounded-lg "
-        :style="{ 'background-image': `url(${props.defaultImage})` }"
-      ></div>
+      >
+        <video muted autoplay loop playsinline v-if="props.defaultVideo">
+            <source :src="props.defaultVideo" type="video/mp4">
+            <source :src="props.defaultVideo" type="video/mov">
+            <source :src="props.defaultVideo" type="video/webm">
+            
+            Your browser does not support HTML video.
+        </video>
+      </div>
 
       <input
-        accept="image/*"
+        accept="video/*"
         id="dropzone-file"
         class="hidden"
         :class="props.fieldId"

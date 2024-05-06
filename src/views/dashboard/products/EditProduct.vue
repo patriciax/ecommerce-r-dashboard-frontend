@@ -46,6 +46,22 @@ const priceError = computed(() => {
   return v$?.value.$errors?.find((item) => item.$property === 'price')?.$message || ''
 })
 
+const weightError = computed(() => {
+  return v$?.value.$errors?.find((item) => item.$property === 'weight')?.$message || ''
+})
+
+const widthError = computed(() => {
+  return v$?.value.$errors?.find((item) => item.$property === 'width')?.$message || ''
+})
+
+const lengthError = computed(() => {
+  return v$?.value.$errors?.find((item) => item.$property === 'length')?.$message || ''
+})
+
+const heightError = computed(() => {
+  return v$?.value.$errors?.find((item) => item.$property === 'height')?.$message || ''
+})
+
 const priceDiscountError = computed(() => {
   return v$?.value.$errors?.find((item) => item.$property === 'priceDiscount')?.$message || ''
 })
@@ -58,29 +74,21 @@ const categoriesError = computed(() => {
   return v$?.value.$errors?.find((item) => item.$property === 'categories')?.$message || ''
 })
 
-const colorsError = computed(() => {
-  return v$?.value.$errors?.find((item) => item.$property === 'colors')?.$message || ''
-})
-
-const sizesError = computed(() => {
-  return v$?.value.$errors?.find((item) => item.$property === 'sizes')?.$message || ''
-})
-
 const defaultMainImage = ref('')
 const defaultImages = ref([])
 
 const showDefaultImage = ref(true)
 const showImageInputs = ref(true)
 const loading = ref(false)
-const sizes = ref([])
-const colors = ref([])
+const sizes:any = ref([])
+const colors:any = ref([])
 const categories = ref([])
 const defaultColors = ref([])
 const defaultSizes = ref([])
 const defaultCategories = ref([])
 const state = reactive({
-  colors: [],
-  sizes: [],
+  colors: '',
+  sizes: '',
   showInHomeSection: '',
   categories: [],
   productName: '',
@@ -89,7 +97,12 @@ const state = reactive({
   descriptionEnglish: '',
   price: null,
   priceDiscount: 0,
-  stock: null
+  stock: 0,
+  productVariations: [] as any,
+  width: '',
+  height: '',
+  length: '',
+  weight: ''
 })
 
 const changeColors = (value: any) => {
@@ -117,13 +130,24 @@ const rules = {
     required: helpers.withMessage('Este campo no puede estar vacío', required),
     numeric: helpers.withMessage('Solo se permiten números', numeric)
   },
-  stock: {
-    required: helpers.withMessage('Este campo no puede estar vacío', required),
-    integer: helpers.withMessage('Solo se permiten números', integer)
-  },
-  colors: { required: helpers.withMessage('Este campo no puede estar vacío', required) },
   categories: { required: helpers.withMessage('Este campo no puede estar vacío', required) },
-  sizes: { required: helpers.withMessage('Este campo no puede estar vacío', required) }
+  priceDiscount: { numeric: helpers.withMessage('Solo se permiten números', numeric) },
+  width: {
+    required: helpers.withMessage('Este campo no puede estar vacío', required), 
+    numeric: helpers.withMessage('Solo se permiten números', numeric)
+  },
+  height: {
+    required: helpers.withMessage('Este campo no puede estar vacío', required), 
+    numeric: helpers.withMessage('Solo se permiten números', numeric)
+  },
+  length: {
+    required: helpers.withMessage('Este campo no puede estar vacío', required), 
+    numeric: helpers.withMessage('Solo se permiten números', numeric)
+  },
+  weight: {
+    required: helpers.withMessage('Este campo no puede estar vacío', required), 
+    numeric: helpers.withMessage('Solo se permiten números', numeric)
+  },
 }
 
 const v$ = useVuelidate(rules, state)
@@ -139,6 +163,11 @@ const awaitTime = () => {
 const submitProduct = async () => {
   const isFormCorrect = await v$.value.$validate()
   if (!isFormCorrect) return
+
+  if(state.productVariations.length == 0){
+    showNotification('Debe agregar al menos una variación', 'error')
+    return
+  }
 
   loading.value = true
   try {
@@ -184,19 +213,21 @@ const submitProduct = async () => {
     }
 
     const data = {
-      colors: state.colors,
-      sizes: state.sizes,
       categories: state.categories,
       mainImage: mainImage64,
       images: images64,
       name: state.productName,
       nameEnglish: state.productNameEnglish,
       price: state.price,
-      stock: state.stock,
       priceDiscount: state.priceDiscount || 0,
       description: state.description,
       descriptionEnglish: state.descriptionEnglish,
-      showInHomeSection: state.showInHomeSection
+      showInHomeSection: state.showInHomeSection,
+      productVariations: state.productVariations,
+      width: state.width,
+      length: state.length,
+      height: state.height,
+      weight: state.weight
     }
 
     await updateProduct(route.params.id.toString(), data)
@@ -208,6 +239,36 @@ const submitProduct = async () => {
     console.log(error)
     showNotification('Error al crear el producto', 'error')
   }
+}
+
+const addVariation = () => {
+  if (state.colors && state.sizes && state.stock) {
+
+    if(state.productVariations.length > 0){
+      const exist = state.productVariations.find((item: any) => item.color === state.colors && item.size === state.sizes)
+      if(exist){
+        showNotification('Ya existe una variación con el mismo color y talla', 'error')
+        return
+      }
+    }
+
+    state.productVariations.push({
+      color: state.colors as string,
+      size: state.sizes as string,
+      stock: state.stock as number
+    });
+
+    state.colors = ''
+    state.sizes = ''
+    state.stock = 0
+  }else{
+    showNotification('Debe seleccionar un color, una talla y un stock', 'error')
+    return
+  }
+}
+
+const deleteVariation = (index: number) => {
+  state.productVariations.splice(index, 1)
 }
 
 const getProducts = async () => {
@@ -260,13 +321,19 @@ const loadProduct = async (productId: string) => {
   defaultMainImage.value = result.data?.mainImage
   defaultImages.value = result.data?.images
   state.showInHomeSection = result.data?.showInHomeSection
+  state.height = result.data?.height
+  state.width = result.data?.width
+  state.weight = result.data?.weight
+  state.length = result.data?.length
 
-  defaultColors.value = state.colors.filter((color: any) =>
-    colors.value.find((defaultColor: any) => defaultColor.id.toString() === color.toString())
-  )
-  defaultSizes.value = state.sizes.filter((size: any) =>
-    sizes.value.find((defaultSize: any) => defaultSize.id.toString() === size.toString())
-  )
+  state.productVariations = result.data?.productVariations.map((item: any) => {
+    return {
+      color: item.color[0]?._id,
+      size: item.size[0]?._id,
+      stock: item.stock
+    }
+  })
+
   defaultCategories.value = state.categories.filter((category: any) =>
     categories.value.find(
       (defaultCategory: any) => defaultCategory.id.toString() === category.toString()
@@ -329,15 +396,6 @@ onMounted(async () => {
           </section>
 
           <div class="w-full gap-4 col-span-2 lg:col-span-1 grid">
-            <TextField
-              class="w-full "
-              :onlyNumber="true"
-              label="Stock del producto"
-              type="text"
-              placeholder="Ingrese el stock del producto"
-              :error="`${stockError}`"
-              v-model="state.stock"
-            />
             <div class="flex flex-col lg:flex-row gap-4">
               <TextField
                 class="w-full"
@@ -367,6 +425,51 @@ onMounted(async () => {
               :error="`${descriptionErrorEnglish}`"
               v-model="state.descriptionEnglish"
             />
+
+            <div class="flex gap-4">
+                <TextField
+                  class="w-full"
+                  :onlyNumber="true"
+                  label="Ancho del paquete (cm)"
+                  type="text"
+                  placeholder="Ingrese el ancho del empaque"
+                  :error="`${widthError}`"
+                  v-model="state.width"
+                />
+
+                <TextField
+                  class="w-full"
+                  :onlyNumber="true"
+                  label="Alto del paquete (cm)"
+                  type="text"
+                  placeholder="Ingrese el alto del empaque"
+                  :error="`${heightError}`"
+                  v-model="state.height"
+                />
+              </div>
+
+              <div class="flex gap-4">
+                <TextField
+                  class="w-full"
+                  :onlyNumber="true"
+                  label="Largo del paquete (cm)"
+                  type="text"
+                  placeholder="Ingrese el largo del empaque"
+                  :error="`${lengthError}`"
+                  v-model="state.length"
+                />
+
+                <TextField
+                  class="w-full"
+                  :onlyNumber="true"
+                  label="Peso del paquete (kg)"
+                  type="text"
+                  placeholder="Ingrese el peso del empaque"
+                  :error="`${weightError}`"
+                  v-model="state.weight"
+                />
+              </div>
+
           </div>
 
           <div class="grid w-full gap-4  col-span-2 lg:col-span-1">
@@ -386,29 +489,6 @@ onMounted(async () => {
                   label="Sección del home"
                   placeholder="Seleccione una sección"
                   :options="[{ id: 'section-1', name: 'Novedades' }, { id: 'section-2', name: 'Productos recomendados' }, { id: 'section-3', name: 'Popular' }]" />
-          </div>
-          <div class="flex w-full gap-4 col-span-2 lg:col-span-1">
-            <MultipleSelectField
-              v-if="colors"
-              @changeValue="changeColors"
-              label="Colores"
-              placeholder="Seleccione uno o varios colors"
-              :options="colors"
-              v-model="state.colors"
-              :defaultValues="defaultColors"
-              :error="`${colorsError}`"
-              class="w-full"
-            />
-            <MultipleSelectField
-              v-if="sizes"
-              @changeValue="changeSizes"
-              label="Tallas"
-              placeholder="Seleccione uno o varias tallas"
-              :options="sizes"
-              v-model="state.sizes"
-              :defaultValues="defaultSizes"
-              :error="`${sizesError}`"
-            />
           </div>
 
           <section class="mt-4 col-span-2 grid lg:grid-cols-2 gap-x-8 mb-6">
@@ -507,6 +587,62 @@ onMounted(async () => {
               </div>
             </div>
           </section>
+
+          <section class="w-full">
+            <div class="flex items-center justify-center">
+              <p>Variaciones del producto</p>
+            </div>
+
+            <div class="flex gap-4">
+              <SelectField
+                v-if="showImageInputs"
+                @changeValue="changeColors"
+                label="Colores"
+                placeholder="Seleccione un color"
+                :options="colors"
+                v-model="state.colors"
+                />
+              
+              <SelectField
+                v-if="showImageInputs"
+                @changeValue="changeSizes"
+                label="Tallas"
+                placeholder="Seleccione una talla"
+                :options="sizes"
+                v-model="state.sizes"
+                />
+
+              <TextField
+                  class="w-full"
+                  :onlyNumber="true"
+                  label="Stock"
+                  type="text"
+                  placeholder="Ingrese el stock"
+                  v-model="state.stock"
+                />
+
+                <Button buttonType="button" title="+" @click="addVariation" />
+                
+            </div>
+
+            <table class="w-full">
+              <tr>
+                <th class="text-start w-1/4">Color</th>
+                <th class="text-start w-1/4">Talla</th>
+                <th class="text-start w-1/4">Stock</th>
+                <th class="w-1/4"></th>
+              </tr>
+              <tr v-for="(variation, index) in state.productVariations" :key="index">
+                <td>{{ colors.find((color: any) => color.id == variation?.color)?.name }}</td>
+                <td>{{ sizes.find((size: any) => size.id == variation?.size)?.name }}</td>
+                <td>{{ variation.stock }}</td>
+                <td>
+                  <Button buttonType="button" title="Eliminar" @click="deleteVariation(index)" />
+                </td>
+              </tr>
+            </table>
+          </section>
+
           <section class="text-end col-span-2">
             <Button buttonType="submit" title="Actualizar producto" :loading="loading" />
           </section>
