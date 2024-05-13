@@ -10,3 +10,4 @@ export const productList = async(limit=10, page = 1) => await axiosGet(`/v1/prod
 export const getProduct = async(id:string) => await axiosGet(`/v1/products/${id}`)
 export const updateProduct = async(id:string, data:any) => await axiosPatch(`/v1/products/${id}`, data)
 export const deleteSecondaryImage = async(id:string, imageId:string) => await axiosDelete(`/v1/products/${id}/secondary-image/${imageId}`)
+export const getPrice = async () => await axiosGet('/v1/dolar-price')

@@ -29,6 +29,9 @@ import bannerManageVue from '@/views/dashboard/banner/bannerManage.vue'
 import invoicesVue from '@/views/dashboard/invoices/Invoices.vue'
 import pagoMovil from '@/views/dashboard/pagoMovil/pagoMovil.vue'
 import Zelle from '@/views/dashboard/zelle/zelle.vue'
+import FooterShippingDelivery from '@/views/dashboard/footer/FooterShippingDelivery.vue'
+import FooterCustomerService from '@/views/dashboard/footer/CustomerService.vue'
+import AboutUs from '@/views/dashboard/footer/AboutUs.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -222,6 +225,27 @@ const router = createRouter({
         component: Zelle,
         meta: { requiresAuth: true },
       },
+
+      {
+        path: '/dashboard/footer-shipping-delivery/manage',
+        name: 'footer-shipping-delivery',
+        component: FooterShippingDelivery,
+        meta: { requiresAuth: true },
+      },
+
+      {
+        path: '/dashboard/footer-customer-service/manage',
+        name: 'footer-customer-service',
+        component: FooterCustomerService,
+        meta: { requiresAuth: true },
+      },
+
+      {
+        path: '/dashboard/footer-about/manage',
+        name: 'footer-about-us',
+        component: AboutUs,
+        meta: { requiresAuth: true },
+      }
 
     ]
    },
