@@ -4,6 +4,7 @@ import Sidebar from '@/components/dashboard/Sidebar.vue'
 import { ref } from 'vue'
 
 const isOpen = ref(false)
+
 </script>
 
 <template>
