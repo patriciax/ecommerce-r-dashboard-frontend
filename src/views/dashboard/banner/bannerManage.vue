@@ -137,7 +137,6 @@ const submitBanner = async() => {
 onMounted(async() => {
     
     const response = await getBanner()
-    console.log(response)
     
     if(response.status == 'success'){
 

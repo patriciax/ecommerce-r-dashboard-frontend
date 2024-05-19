@@ -234,7 +234,7 @@ onMounted(async () => {
         >
           <!-- <img :src="category?.image" alt="product" class="w-16 h-16 rounded-full" /> -->
           <div class="">
-            <small v-for="smallCategory in category.ancestors.map((item:any) => item.name).reverse()" class="ml-2" >{{ smallCategory }}</small>
+            <small :key="smallCategory.id" v-for="smallCategory in category.ancestors.map((item:any) => item.name).reverse()" class="ml-2" >{{ smallCategory }}</small>
             <p class="text-sm font-semibold mb-0.5 truncate w-36 text-default-text capitalize">{{ category.name }}</p>
           </div>
         </div>

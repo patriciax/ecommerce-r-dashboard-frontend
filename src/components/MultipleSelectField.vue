@@ -47,7 +47,9 @@ watch(
   (newValue) => {
     selectedRows.value =
       newValue?.map(
-        (id: string) => props.options?.find((option: Option) => option.id === id) as Option
+        (newValue: any) => props.options?.find((option: Option) => {
+          return  option.id == newValue.id
+        }) as Option
       ) ?? []
   }
 )
@@ -62,12 +64,13 @@ watch(
       v-model="selectedOption"
     >
       <option value="null" selected disabled>{{ props.placeholder }}</option>
-      <option :value="option.id" v-for="option in props.options">{{ option.name }}</option>
+      <option :value="option.id" v-for="option in props.options" :key="option.id">{{ option.name }}</option>
     </select>
     <p class="text-red-300" v-if="props.error">{{ props.error }}</p>
 
     <div class="flex flex-wrap gap-2 mt-2">
       <div
+        :key="row.id"
         v-for="row in selectedRows"
         class="bg-slate-100 flex p-2 hover:bg-slate-200 rounded-md items-center justify-between cursor-pointer"
         @click="removeOption(row)"
