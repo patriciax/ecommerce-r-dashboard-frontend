@@ -255,6 +255,10 @@ onMounted(async () => {
               <IconPay/>
             </ButtonIcon>
 
+            <div v-if="invoice?.payment?.purchaseType == 'giftCard'">
+              {{ invoice?.payment?.type == 'banesco' || invoice?.payment?.type == 'mercantil' ||invoice?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }} {{ invoice?.payment?.type == 'banesco' || invoice?.payment?.type == 'mercantil' || invoice?.payment?.type == 'pagoMovil' ? decimalNumberFormat(invoice?.payment?.total) : invoice?.payment?.total }}
+            </div>
+
           </td>
         </tr>
       </template>
@@ -324,28 +328,28 @@ onMounted(async () => {
                 <td class="px-6 py-4">{{ product.size.name }}</td>
                 <td class="px-6 py-4">{{ product.color.name }}</td>
                 <td class="px-6 py-4">{{ product.quantity }}</td>
-                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }}{{ decimalNumberFormat(pagosToShow.payment?.type == 'giftCard' || pagosToShow.payment?.type == 'zelle' || pagosToShow.payment?.type == 'paypal' ? (product.product.priceDiscount || product.product.price) : (product.product.priceDiscount || product.product.price) * dolarPrice) }}</td>
+                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' || pagosToShow?.payment?.type == 'mercantil' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }}{{ decimalNumberFormat(pagosToShow.payment?.type == 'giftCard' || pagosToShow.payment?.type == 'zelle' || pagosToShow.payment?.type == 'paypal' ? (product.product.priceDiscount || product.product.price) : (product.product.priceDiscount || product.product.price) * dolarPrice) }}</td>
               </tr>
               <tr>
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4 uppercase">Envío</td>
-                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }}{{ decimalNumberFormat(pagosToShow.payment?.carrierRate?.amount ?? 0) }}</td>
+                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' || pagosToShow?.payment?.type == 'mercantil' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }}{{ decimalNumberFormat(pagosToShow.payment?.carrierRate?.amount ?? 0) }}</td>
               </tr>
               <tr>
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4 uppercase">IVA</td>
-                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }}{{ decimalNumberFormat(pagosToShow.payment?.taxAmount ?? 0) }}</td>
+                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' || pagosToShow?.payment?.type == 'mercantil' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }}{{ decimalNumberFormat(pagosToShow.payment?.taxAmount ?? 0) }}</td>
               </tr>
               <tr>
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4 uppercase">Total</td>
-                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }}{{ decimalNumberFormat(pagosToShow.payment?.total + (pagosToShow.payment?.carrierRate ? pagosToShow.payment?.carrierRate?.amount * 1 : 0) + pagosToShow.payment.taxAmount) }}</td>
+                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' || pagosToShow?.payment?.type == 'mercantil' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }}{{ decimalNumberFormat(pagosToShow.payment?.total + (pagosToShow.payment?.carrierRate ? pagosToShow.payment?.carrierRate?.amount * 1 : 0) + pagosToShow.payment.taxAmount) }}</td>
               </tr>
             </tbody>
           </table>
@@ -378,28 +382,28 @@ onMounted(async () => {
                 <td class="px-6 py-4">{{ pagosToShow?.payment?.bank }}</td>
                 <td class="px-6 py-4">{{ pagosToShow.pagoMovilReference }}</td>
                 <td class="px-6 py-4">{{ pagosToShow.pagoMovilDate.substring(0, 10) }}</td>
-                <td class="px-6 py-4">${{ pagosToShow.payment?.total.toFixed(2) }}</td>
+                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' || pagosToShow?.payment?.type == 'mercantil' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }}{{ pagosToShow.payment?.total.toFixed(2) }}</td>
               </tr>
               <tr>
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4 uppercase">Envío</td>
-                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }} {{ decimalNumberFormat(pagosToShow.payment?.carrierRate?.amount ?? 0) }}</td>
+                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' || pagosToShow?.payment?.type == 'mercantil' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }} {{ decimalNumberFormat(pagosToShow.payment?.carrierRate?.amount ?? 0) }}</td>
               </tr>
               <tr>
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4 uppercase">IVA</td>
-                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }} {{ decimalNumberFormat(pagosToShow.payment?.taxAmount ?? 0) }}</td>
+                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' || pagosToShow?.payment?.type == 'mercantil' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }} {{ decimalNumberFormat(pagosToShow.payment?.taxAmount ?? 0) }}</td>
               </tr>
               <tr>
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4 uppercase">Total</td>
-                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }} {{ decimalNumberFormat(pagosToShow.payment?.total + (pagosToShow.payment?.carrierRate ? pagosToShow.payment?.carrierRate?.amount * 1 : 0) + pagosToShow.payment.taxAmount) }}</td>
+                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' || pagosToShow?.payment?.type == 'mercantil' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }} {{ decimalNumberFormat(pagosToShow.payment?.total + (pagosToShow.payment?.carrierRate ? pagosToShow.payment?.carrierRate?.amount * 1 : 0) + pagosToShow.payment.taxAmount) }}</td>
               </tr>
             </tbody>
             <tfoot class="flex space-x-2 mt-2" >
@@ -467,7 +471,7 @@ onMounted(async () => {
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4"></td>
                 <td class="px-6 py-4 uppercase">Total</td>
-                <td class="px-6 py-4">${{ decimalNumberFormat(pagosToShow.payment?.total + (pagosToShow.payment?.carrierRate?.amount * 1 ?? 0) + pagosToShow.payment.taxAmount) }}</td>
+                <td class="px-6 py-4">${{ decimalNumberFormat(pagosToShow.payment?.total + (pagosToShow.payment?.carrierRate ? pagosToShow.payment?.carrierRate?.amount  * 1 : 0) + pagosToShow.payment.taxAmount) }}</td>
               </tr>
             </tbody>
             <tfoot class="flex space-x-2  mt-2">
