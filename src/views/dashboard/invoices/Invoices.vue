@@ -13,7 +13,15 @@ import TextField from '@/components/TextField.vue'
 import IconDocumentation from '@/components/icons/IconDocumentation.vue'
 import IconPay from '@/components/icons/IconPay.vue'
 import { getPagoMovil } from '@/api/repositories/pagoMovil.repository'
+import { decimalNumberFormat } from '@/utils/numberFormat'
+import { getPrice } from '@/api/repositories/product.repository'
 
+const paymentIdentificationToShow = ref('')
+const addressTrackingToShow= ref('')
+const officeTrackingToShow= ref('')
+const phoneTrackingToShow= ref('')
+
+const dolarPrice = ref(0)
 const openProductsModal = ref(false)
 const isOpenAddTrackingModal = ref(false)
 const invoiceToAddTracking = ref()
@@ -134,18 +142,32 @@ const rejectPago = async () => {
   }
 }
 
+const showTrackingUpdate = (invoice) => {
+
+  paymentIdentificationToShow.value = invoice.payment?.identification
+  addressTrackingToShow.value = `${invoice.carrier?.address} ${invoice.carrier?.state}`
+  officeTrackingToShow.value = `${invoice.carrier?.carrierName} ${invoice.carrier?.office}`
+  phoneTrackingToShow.value = invoice.phone
+
+  isOpenAddTrackingModal.value = true; 
+  invoiceToAddTracking.value = invoice._id
+}
+
 const productsToShow = computed(() => {
   return invoices.value.find((invoice: any) => invoice._id == invoiceToshowProducts.value)?.invoiceProduct
 })
 
 const pagosToShow = computed(() => {
-  return invoices.value.find((invoice: any) => invoice._id == invoiceToShowPagos.value)
+  return invoices.value.find((invoice: any) => invoice._id == invoiceToShowPagos.value ||  invoice._id == invoiceToshowProducts.value)
 })
 
 onMounted(async () => {
     getInvoices()
     const response = await getPagoMovil()
-
+    const responsePrice = await getPrice()
+    if (responsePrice) {
+      dolarPrice.value = responsePrice.price
+    }
     bank.value = response.data?.bank
     identification.value = response.data?.identification
     phone.value = response.data?.phone
@@ -201,7 +223,7 @@ onMounted(async () => {
               v-if="invoice?.payment?.status == 'approved' && invoice?.payment?.purchaseType == 'invoice'"
               color="bg-transparent hover:text-purple-500 text-blue-dark"
               size="p-0"
-              @click="isOpenAddTrackingModal = true; invoiceToAddTracking = invoice._id"
+              @click="showTrackingUpdate(invoice)"
             >
               <EditIcon />
             </ButtonIcon>
@@ -260,6 +282,10 @@ onMounted(async () => {
       @firtsButtonAction="updateTracking(invoiceToAddTracking)"
     >
       <section>
+        <p class="text-left">Identificación: {{ paymentIdentificationToShow }}</p>
+        <p class="text-left">Dirección: {{ addressTrackingToShow }}</p>
+        <p class="text-left">Oficina: {{ officeTrackingToShow }}</p>
+        <p class="text-left">Teléfono: {{ phoneTrackingToShow }}</p>
         <div class="mb-4">
           <TextField
             v-model="trackingToAdd"
@@ -298,7 +324,28 @@ onMounted(async () => {
                 <td class="px-6 py-4">{{ product.size.name }}</td>
                 <td class="px-6 py-4">{{ product.color.name }}</td>
                 <td class="px-6 py-4">{{ product.quantity }}</td>
-                <td class="px-6 py-4">${{ product.product.priceDiscount || product.product.price }}</td>
+                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }}{{ decimalNumberFormat(pagosToShow.payment?.type == 'giftCard' || pagosToShow.payment?.type == 'zelle' || pagosToShow.payment?.type == 'paypal' ? (product.product.priceDiscount || product.product.price) : (product.product.priceDiscount || product.product.price) * dolarPrice) }}</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4 uppercase">Envío</td>
+                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }}{{ decimalNumberFormat(pagosToShow.payment?.carrierRate?.amount ?? 0) }}</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4 uppercase">IVA</td>
+                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }}{{ decimalNumberFormat(pagosToShow.payment?.taxAmount ?? 0) }}</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4 uppercase">Total</td>
+                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }}{{ decimalNumberFormat(pagosToShow.payment?.total + (pagosToShow.payment?.carrierRate ? pagosToShow.payment?.carrierRate?.amount * 1 : 0) + pagosToShow.payment.taxAmount) }}</td>
               </tr>
             </tbody>
           </table>
@@ -332,6 +379,27 @@ onMounted(async () => {
                 <td class="px-6 py-4">{{ pagosToShow.pagoMovilReference }}</td>
                 <td class="px-6 py-4">{{ pagosToShow.pagoMovilDate.substring(0, 10) }}</td>
                 <td class="px-6 py-4">${{ pagosToShow.payment?.total.toFixed(2) }}</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4 uppercase">Envío</td>
+                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }} {{ decimalNumberFormat(pagosToShow.payment?.carrierRate?.amount ?? 0) }}</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4 uppercase">IVA</td>
+                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }} {{ decimalNumberFormat(pagosToShow.payment?.taxAmount ?? 0) }}</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4 uppercase">Total</td>
+                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }} {{ decimalNumberFormat(pagosToShow.payment?.total + (pagosToShow.payment?.carrierRate ? pagosToShow.payment?.carrierRate?.amount * 1 : 0) + pagosToShow.payment.taxAmount) }}</td>
               </tr>
             </tbody>
             <tfoot class="flex space-x-2 mt-2" >
@@ -378,7 +446,28 @@ onMounted(async () => {
                 <td class="px-6 py-4">{{ pagosToShow?.payment?.zelleEmail }}</td>
                 <td class="px-6 py-4">{{ pagosToShow.pagoMovilReference }}</td>
                 <td class="px-6 py-4">{{ pagosToShow.pagoMovilDate.substring(0, 10) }}</td>
-                <td class="px-6 py-4">${{ pagosToShow.payment?.total.toFixed(2) }}</td>
+                <td class="px-6 py-4">${{ decimalNumberFormat(pagosToShow.payment?.total) }}</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4 uppercase">Envío</td>
+                <td class="px-6 py-4">$ {{ decimalNumberFormat(pagosToShow.payment?.carrierRate?.amount ?? 0) }}</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4 uppercase">IVA</td>
+                <td class="px-6 py-4">${{ decimalNumberFormat(pagosToShow.payment?.taxAmount ?? 0) }}</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4"></td>
+                <td class="px-6 py-4 uppercase">Total</td>
+                <td class="px-6 py-4">${{ decimalNumberFormat(pagosToShow.payment?.total + (pagosToShow.payment?.carrierRate?.amount * 1 ?? 0) + pagosToShow.payment.taxAmount) }}</td>
               </tr>
             </tbody>
             <tfoot class="flex space-x-2  mt-2">

@@ -334,9 +334,11 @@ const loadProduct = async (productId: string) => {
     }
   })
 
-  defaultCategories.value = state.categories.filter((category: any) =>
+  defaultCategories.value = state.categories.map((category: any) =>
     categories.value.find(
-      (defaultCategory: any) => defaultCategory.id.toString() === category.toString()
+      (defaultCategory: any) => {
+        return defaultCategory.id.toString() === category._id.toString()
+      }
     )
   )
 }

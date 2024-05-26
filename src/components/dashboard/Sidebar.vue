@@ -71,6 +71,12 @@ const zelleOptions = [
   { title: 'Zelle', link: '/dashboard/zelle/manage' }
 ]
 
+const footerOptions = [
+  { title: 'Envíos y entrega', link: '/dashboard/footer-shipping-delivery/manage' },
+  { title: 'Servicio al cliente', link: '/dashboard/footer-customer-service/manage' },
+  { title: 'Acerca de roca', link: '/dashboard/footer-about/manage' }
+]
+
 </script>
 
 <template>
@@ -174,6 +180,13 @@ const zelleOptions = [
     :icon="SwatchIcon"
       title="Zelle"
       :options="zelleOptions"
+      v-if="authStore.user?.role?.permissions.find((item: any) => item == 'BANNER-CREATE')"
+    />
+
+    <Accordion
+    :icon="SwatchIcon"
+      title="Footer"
+      :options="footerOptions"
       v-if="authStore.user?.role?.permissions.find((item: any) => item == 'BANNER-CREATE')"
     />
   </div>

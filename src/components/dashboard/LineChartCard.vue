@@ -75,8 +75,8 @@ const series = ref([
         <p class="text-2xl font-medium" v-text="props.options?.count"></p>
       </div>
     </div>
-    <div class="xl:w-44 w-auto m-auto">
+    <!-- <div class="xl:w-44 w-auto m-auto">
       <apexchart type="line" :options="chartOptions" :series="series"></apexchart>
-    </div>
+    </div> -->
   </div>
 </template>
