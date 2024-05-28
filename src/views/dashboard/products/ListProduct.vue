@@ -56,10 +56,6 @@ const titlesTable = computed(() => [
   },
 
   {
-    width: 'w-1/6',
-    title: 'Stock'
-  },
-  {
     width: 'w-1/2',
     title: 'imagen'
   },
@@ -98,9 +94,6 @@ onMounted(async () => {
         >
           <td class="flex cursor-pointer items-center gap-2 p-3 capitalize">
             {{ product.name }}
-          </td>
-          <td class="p-3">
-            {{ product.stock }}
           </td>
           <td class="p-3">
             <img :src="product?.mainImage" alt="product" class="w-12 h-12 rounded-sm" />
