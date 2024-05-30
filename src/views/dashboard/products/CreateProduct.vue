@@ -526,7 +526,7 @@ onMounted(() => {
                   :options="sizes"
                   v-model="state.sizes"
                   :error="`${sizesError}`"/>
-                <ButtonIcon @click="getAllColors" class="mt-3">
+                <ButtonIcon @click="getAllSizes" class="mt-3">
                   <IconRefresh />
                 </ButtonIcon>
               </div>
