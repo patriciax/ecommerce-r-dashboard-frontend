@@ -14,8 +14,18 @@ import { allColors } from '@/api/repositories/product.repository'
 import { allCategories } from '@/api/repositories/product.repository'
 import MultipleSelectField from '@/components/MultipleSelectField.vue'
 import SelectField from '@/components/SelectField.vue'
+import { useRouter } from 'vue-router'
+import ButtonIcon from '@/components/ButtonIcon.vue'
+import IconEcosystem from '@/components/icons/IconEcosystem.vue'
+import IconRefresh from '@/components/icons/IconRefresh.vue'
+const router = useRouter();
 
 const lastestProductsList: any = ref([])
+
+const openNewTab = (routeName:string) => {
+  const routeData = router.resolve({name: routeName});
+  window.open(routeData.href, '_blank');
+}
 
 const productError = computed(() => {
   return v$?.value.$errors?.find((item) => item.$property === 'productName')?.$message || ''
@@ -365,15 +375,23 @@ onMounted(() => {
                 v-model="state.description"
               />
               <div class="flex-col w-full gap-4">
-                <MultipleSelectField
-                  v-if="showImageInputs"
-                  @changeValue="changeCategories"
-                  label="Categorías"
-                  placeholder="Seleccione uno o varias categorías"
-                  :options="categories"
-                  v-model="state.categories"
-                  :error="`${categoriesError}`"
-                />
+                <div class="mb-4">
+                  <div class="flex">
+                    <MultipleSelectField
+                      v-if="showImageInputs"
+                      @changeValue="changeCategories"
+                      label="Categorías"
+                      placeholder="Seleccione uno o varias categorías"
+                      :options="categories"
+                      v-model="state.categories"
+                      :error="`${categoriesError}`"
+                    />
+                    <ButtonIcon @click="getAllCategories" class="mt-3">
+                      <IconRefresh />
+                    </ButtonIcon>
+                  </div>
+                  <small class="text-blue-500 cursor-pointer" @click="openNewTab('create-category')" >Ir a categorías</small>
+                </div>
                 <SelectField
                   v-if="showImageInputs"
                   v-model="state.showInHomeSection"
@@ -481,26 +499,43 @@ onMounted(() => {
           </div>
 
           <div class="flex gap-4">
-            <SelectField
-              v-if="showImageInputs"
-              @changeValue="changeColors"
-              label="Colores"
-              placeholder="Seleccione un color"
-              :options="colors"
-              v-model="state.colors"
-              :error="`${colorsError}`"/>
-            
-            <SelectField
-              v-if="showImageInputs"
-              @changeValue="changeSizes"
-              label="Tallas"
-              placeholder="Seleccione una talla"
-              :options="sizes"
-              v-model="state.sizes"
-              :error="`${sizesError}`"/>
+            <div class="w-1/4">
+              <div class="flex">
+                <SelectField
+                v-if="showImageInputs"
+                @changeValue="changeColors"
+                label="Colores"
+                placeholder="Seleccione un color"
+                :options="colors"
+                v-model="state.colors"
+                :error="`${colorsError}`"/>
+                <ButtonIcon @click="getAllColors" class="mt-3">
+                <IconRefresh />
+              </ButtonIcon>
+              </div>
+
+              <small class="text-blue-500 cursor-pointer" @click="openNewTab('create-color')" >Ir a colores</small>
+            </div>
+            <div class="w-1/4">
+              <div class="flex">
+                <SelectField
+                  v-if="showImageInputs"
+                  @changeValue="changeSizes"
+                  label="Tallas"
+                  placeholder="Seleccione una talla"
+                  :options="sizes"
+                  v-model="state.sizes"
+                  :error="`${sizesError}`"/>
+                <ButtonIcon @click="getAllColors" class="mt-3">
+                  <IconRefresh />
+                </ButtonIcon>
+              </div>
+              
+              <small class="text-blue-500 cursor-pointer" @click="openNewTab('create-size')" >Ir a tallas</small>
+            </div>
 
             <TextField
-                class="w-full"
+                class="w-1/4"
                 :onlyNumber="true"
                 label="Stock"
                 type="text"
@@ -508,7 +543,7 @@ onMounted(() => {
                 v-model="state.stock"
               />
 
-              <Button buttonType="button" title="+" @click="addVariation" />
+              <Button class="w-1/4" buttonType="button" title="+" @click="addVariation" />
               
           </div>
 
