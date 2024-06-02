@@ -328,7 +328,8 @@ onMounted(async () => {
                 <td class="px-6 py-4">{{ product.size.name }}</td>
                 <td class="px-6 py-4">{{ product.color.name }}</td>
                 <td class="px-6 py-4">{{ product.quantity }}</td>
-                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' || pagosToShow?.payment?.type == 'mercantil' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }}{{ decimalNumberFormat(pagosToShow.payment?.type == 'giftCard' || pagosToShow.payment?.type == 'zelle' || pagosToShow.payment?.type == 'paypal' ? (product.product.priceDiscount || product.product.price) : (product.product.priceDiscount || product.product.price) * dolarPrice) }}</td>
+                <td class="px-6 py-4">{{ pagosToShow?.payment?.type == 'banesco' || pagosToShow?.payment?.type == 'mercantil' ||pagosToShow?.payment?.type == 'pagoMovil' ? 'Bs.' : '$' }}
+                  {{ decimalNumberFormat(pagosToShow.payment?.type == 'giftCard' || pagosToShow.payment?.type == 'zelle' || pagosToShow.payment?.type == 'paypal' ? product.price : product.price * dolarPrice) }}</td>
               </tr>
               <tr>
                 <td class="px-6 py-4"></td>
